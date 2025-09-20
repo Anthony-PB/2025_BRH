@@ -1,46 +1,53 @@
 import React from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle} from '@/components/ui/card';
-import { CardCell, CardImage } from "@/components/ui/cardCell";
-import Image from "next/image";
+import Group from "@/components/group";
 
-export default async function Bookmark() {
+export default function Bookmark() {
+    // Mock data to show how it would look
+    const mockGroups = [
+        {
+            title: "Tech News",
+            description: "Latest technology and startup news",
+            memberCount: 1247,
+            sourcesIn: ["TechCrunch", "Hacker News", "The Verge", "Ars Technica"]
+        },
+        {
+            title: "AI & Machine Learning",
+            description: "Cutting-edge AI research and applications",
+            memberCount: 892,
+            sourcesIn: ["OpenAI Blog", "Anthropic", "DeepMind", "Papers With Code"]
+        },
+        {
+            title: "Web Development",
+            description: "Frontend, backend, and full-stack development",
+            memberCount: 2156,
+            sourcesIn: ["CSS-Tricks", "Smashing Magazine", "Dev.to", "MDN Docs"]
+        },
+        {
+            title: "Design Inspiration",
+            description: "UI/UX design trends and inspiration",
+            memberCount: 634,
+            sourcesIn: ["Dribbble", "Behance", "Awwwards", "UX Planet"]
+        }
+    ];
+
     return (
-        <div className="flex min-h-screen flex-col">
-      <div className="mx-auto flex w-full max-w-lg flex-1 flex-col px-5 lg:max-w-5xl gap-12">
-        <div className="flex flex-row gap-6">
-          <CardCell className="mt-20 w-full"> 
-            <CardImage>
-                <Image
-                src="/talking.png"
-                alt="Some alt text"
-                width={400}
-                height={250}
-                className="w-full h-48 object-cover"
-                />
-            </CardImage>
-            <CardHeader>
-                <CardTitle>Title</CardTitle>
-                <CardDescription>Description of article</CardDescription>
-            </CardHeader>
-          </CardCell>
-          <CardCell className="mt-20 w-full"> 
-            <CardImage>
-                <Image
-                src="/talking.png"
-                alt="Some alt text"
-                width={400}
-                height={250}
-                className="w-full h-48 object-cover"
-                />
-            </CardImage>
-            <CardHeader>
-                <CardTitle>Title</CardTitle>
-                <CardDescription>Description of article</CardDescription>
-            </CardHeader>
-          </CardCell>
+        <div className="w-full py-6 px-24 flex flex-col gap-8">
+            <div className="space-y-2">
+                <h1 className="text-4xl font-bold text-gray-900">Your Bookmarks</h1>
+                <p className="text-gray-600">Organize your content sources into groups</p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {mockGroups.map((group, index) => (
+                    <Group 
+                        key={index}
+                        title={group.title}
+                        description={group.description}
+                        sourceCount={group.sourcesIn.length}
+                        sourcesIn={group.sourcesIn}
+                    />
+                ))}
+            </div>
         </div>
-      </div>
-    </div>
-        )   
-    ;
-    }
+    );
+}
