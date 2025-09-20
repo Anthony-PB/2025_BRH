@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle} from '@/comp
 import { Button } from "@/components/ui/button";
 import {CardCell, CardImage } from "@/components/ui/cardCell";
 import Image from "next/image";
+import ProviderCarousel from "@/components/provider-carousel"
 
 export default async function Home() {
   const result = await dbConnectionStatus();
@@ -32,6 +33,7 @@ export default async function Home() {
             <CardDescription>Description of article</CardDescription>
           </CardHeader>
         </CardCell>
+        <ProviderCarousel/>
       </div>
     </div>
   );
