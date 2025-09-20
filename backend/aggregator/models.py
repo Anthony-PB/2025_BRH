@@ -1,21 +1,53 @@
 from django.db import models
+from django.contrib.auth import get_user_model
+from django_mongodb_backend.fields import ObjectIdAutoField, EmbeddedModelField
 
-# Create your models here.
-class Source(models.Model):
+User = get_user_model()
+
+class SourceInfo(models.Model):
+    """Embedded source information"""
     name = models.CharField(max_length=200)
-    resource_uri = models.URLField(unique=True)
-    is_rss = models.BooleanField()
-    # ... any other fields like 'is_rss_feed', 'favicon_url', etc.
-
-    def __str__(self):
-        return self.name
+    base_url = models.URLField()
+    category = models.CharField(max_length=100, blank=True)
+    
+    class Meta:
+        abstract = True
 
 class Article(models.Model):
-    # This is a one-to-many relationship: One Source has many Articles.
-    # We store the ID of the parent Source here.
-    source_id = models.CharField(max_length=24)
-    title = models.CharField(max_length=300)
-    post_url = models.URLField(unique=True)
+    id = ObjectIdAutoField(primary_key=True)
+    
+    source = EmbeddedModelField(
+        model_container=SourceInfo,
+        model_form_class=None
+    )
+    
+    title = models.CharField(max_length=500)
+    content = models.TextField(blank=True)
+    summary = models.TextField(blank=True)
+    author = models.CharField(max_length=200, blank=True)
+    original_url = models.URLField(unique=True)
+    published_at = models.DateTimeField()
+    scraped_at = models.DateTimeField(auto_now_add=True)
+    
+    # User interactions - store user IDs as arrays
+    bookmarked_by_ids = models.JSONField(default=list, blank=True)
+    tags = models.JSONField(default=list, blank=True)
+    
+    class Meta:
+        db_table = 'articles'
+        ordering = ['-published_at']
 
-    def __str__(self):
-        return self.title
+class Source(models.Model):
+    """Separate collection for managing sources"""
+    id = ObjectIdAutoField(primary_key=True)
+    name = models.CharField(max_length=200)
+    base_url = models.URLField()
+    feed_url = models.URLField(blank=True, null=True)
+    is_rss = models.BooleanField(default=False)
+    category = models.CharField(max_length=100, blank=True)
+    is_active = models.BooleanField(default=True)
+    last_scraped = models.DateTimeField(null=True, blank=True)
+    follower_ids = models.JSONField(default=list, blank=True)
+    
+    class Meta:
+        db_table = 'sources'
