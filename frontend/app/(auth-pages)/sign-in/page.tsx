@@ -91,7 +91,7 @@ export default function SignIn() {
                     <div className="space-y-4">
                         {activeTab === 'register' && (
                             <div>
-                                <label htmlFor="displayName" className="block text-sm font-medium text-gray-700 mb-1">
+                                <label htmlFor="displayName" className="block text-md font-semibold text-gray-700 mb-1">
                                     Display Name
                                 </label>
                                 <input
@@ -107,7 +107,7 @@ export default function SignIn() {
                         )}
 
                         <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                            <label htmlFor="email" className="block text-md font-semibold text-gray-700 mb-1">
                                 Email Address
                             </label>
                             <input
@@ -140,7 +140,7 @@ export default function SignIn() {
                         </div>
 
                         <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                            <label htmlFor="password" className="block text-md font-semibold text-gray-700 mb-1">
                                 Password
                             </label>
                             <input
@@ -165,7 +165,7 @@ export default function SignIn() {
                             <div className="text-right">
                                 <button
                                     type="button"
-                                    className="text-sm text-blue-600 hover:text-blue-500"
+                                    className="text-md font-semibold text-blue-600 hover:text-blue-500"
                                     onClick={() => console.log('Forgot password clicked')}
                                 >
                                     Forgot your password?
@@ -177,7 +177,7 @@ export default function SignIn() {
                             type="button"
                             onClick={handleSubmit}
                             disabled={loading}
-                            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-md font-semibold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                         >
                             {loading ? (
                                 <div className="flex items-center">

@@ -12,7 +12,7 @@ export default async function Navbar() {
             </Link>
             <div className="flex items-center gap-12">
                 <Link  href="/browse" className="text-black font-bold text-xl hover:text-gray-600">Browse</Link>
-                <Link href="/bookmark" className="text-black font-bold text-xl hover:text-gray-600">Bookmark</Link>
+                <Link href="/bookmark" className="text-black font-bold text-xl hover:text-gray-600">Bookmarks</Link>
                 <div className="text-black dark:text-white sm:flex hidden items-center">
                     <a href="/sign-in">
                         <Button variant="default" className="text-lg font-bold hover:bg-gray-600">Sign Up</Button>
