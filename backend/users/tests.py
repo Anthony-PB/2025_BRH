@@ -1,113 +1,133 @@
 from django.test import TestCase
-from unittest.mock import patch, MagicMock
-from rest_framework.test import APITestCase, APIClient
+from rest_framework.test import APITestCase
 from rest_framework import status
+from django.contrib.auth import get_user_model
 from django.urls import reverse
-from django.contrib.auth.hashers import make_password # <-- Import Django's hashing function
 
+User = get_user_model()
 
-class UserAPITests(APITestCase):
-    """
-    Test suite for the User API endpoints.
-    """
-    def setUp(self):
-        """This method is run before each test."""
-        self.client = APIClient()
-
-    # --- Test 1: Listing articles (GET) ---
-
-    @patch('core.db_utils.create_user')
-    def test_create_user_success(self, mock_create_user):
-        """
-        RED: Write a failing test for POST /users/register/.
-        It should return a created user
-        """
-        # Arrange: Configure the mock to return some fake data
-        password = "IMcool124"
-        mock_create_user.return_value = {'_id': '1', 
-                                              'email': 'augustiscool@gmail.com', 
-                                              'sources':[],
-                                              'password_hash': 'ahsdw248iffdf2@', 
-                                              'liked_posts':[]}
-
-        payload = {"email":"augustiscool@gmail.com", "password": password, "confirm_password": password}
-        # Act: Make the API request
-        response = self.client.post(reverse('register-user'), data=payload, format='json')
-
-        # Assert: Check the results
+class UserAPISuccessTests(APITestCase):
+    """Test user registration and authentication - success scenarios only"""
+    
+    def test_create_user_success(self):
+        """Test successful user registration with all fields"""
+        url = reverse("register")
+        data = {
+            'email': 'test@example.com',
+            'password': 'testpass123',
+            'password_confirm': 'testpass123',
+            'first_name': 'Test',
+            'last_name': 'User',
+            'display_name': 'TestUser'
+        }
+        
+        response = self.client.post(url, data, format='json')
+        
+        # Check if user was created successfully
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data['_id'], '1')
-        self.assertEqual(response.data['email'], 'augustiscool@gmail.com')
-        self.assertNotIn('password_hash', response.data)
-        mock_create_user.assert_called_once()
-
-
-    # # --- Test 2: Creating an article (POST) - Happy Path ---
-
-    # @patch('core.db_utils.create_article')
-    # def test_create_article_success(self, mock_create_article):
-    #     """
-    #     RED: Test POST /api/articles/ with valid data and authentication.
-    #     """
-    #     # Arrange: Set up the mock and the data payload
-    #     mock_create_article.return_value = 'new_article_id_123'
-    #     valid_payload = {
-    #         'title': 'A Brand New Article',
-    #         'url': 'http://example.com/new',
-    #         'author_email': 'author@example.com'
-    #     }
-
-    #     # Act: Force authenticate a user and make the POST request
-    #     self.client.force_authenticate(user=DUMMY_USER)
-    #     response = self.client.post(
-    #         self.list_create_url, 
-    #         data=valid_payload, 
-    #         format='json'
-    #     )
-
-    #     # Assert
-    #     self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-    #     mock_create_article.assert_called_once_with(valid_payload)
-
-
-    # # --- Test 3: Creating an article - Sad Path (Invalid Data) ---
-
-    # def test_create_article_invalid_data(self):
-    #     """
-    #     RED: Test POST /api/articles/ with invalid data.
-    #     It should return a 400 Bad Request error.
-    #     """
-    #     # Arrange: Payload is missing the required 'url' field
-    #     invalid_payload = {'title': 'Missing URL'}
-
-    #     # Act
-    #     self.client.force_authenticate(user=DUMMY_USER)
-    #     response = self.client.post(
-    #         self.list_create_url, 
-    #         data=invalid_payload, 
-    #         format='json'
-    #     )
-
-    #     # Assert
-    #     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-    #     self.assertIn('url', response.data) # Check that the error message mentions the 'url' field
-
-
-    # # --- Test 4: Creating an article - Sad Path (Unauthenticated) ---
-
-    # def test_create_article_unauthenticated(self):
-    #     """
-    #     RED: Test POST /api/articles/ without authentication.
-    #     """
-    #     # Arrange
-    #     payload = {'title': 'A Title', 'url': 'http://a.com'}
-
-    #     # Act: Note that we DO NOT call force_authenticate
-    #     response = self.client.post(self.list_create_url, data=payload, format='json')
-
-    #     # Assert: DRF should return 401 Unauthorized or 403 Forbidden
-    #     # depending on your default permission settings.
-    #     self.assertIn(
-    #         response.status_code, 
-    #         [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN]
-    #     )
+        self.assertIn('token', response.data)
+        self.assertIn('user', response.data)
+        self.assertEqual(response.data['user']['email'], 'test@example.com')
+        self.assertEqual(response.data['user']['display_name'], 'TestUser')
+        
+        # Verify user exists in database
+        self.assertTrue(User.objects.filter(email='test@example.com').exists())
+    
+    def test_create_user_minimal_fields(self):
+        """Test successful user registration with minimal required fields"""
+        url = reverse("register")
+        data = {
+            'email': 'minimal@example.com',
+            'password': 'securepass456',
+            'password_confirm': 'securepass456'
+        }
+        
+        response = self.client.post(url, data, format='json')
+        
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertIn('token', response.data)
+        self.assertEqual(response.data['user']['email'], 'minimal@example.com')
+        
+        # Verify user was created
+        user = User.objects.get(email='minimal@example.com')
+        self.assertEqual(user.email, 'minimal@example.com')
+    
+    def test_create_user_with_long_password(self):
+        """Test successful registration with a longer password"""
+        url = reverse("register")
+        data = {
+            'email': 'longpass@example.com',
+            'password': 'thisisaverylongandstrongpassword123',
+            'password_confirm': 'thisisaverylongandstrongpassword123',
+            'first_name': 'Long',
+            'last_name': 'Password',
+            'display_name': 'LongPassUser'
+        }
+        
+        response = self.client.post(url, data, format='json')
+        
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertIn('token', response.data)
+        self.assertTrue(User.objects.filter(email='longpass@example.com').exists())
+    
+    def test_create_multiple_users(self):
+        """Test creating multiple users successfully"""
+        url = reverse("register")
+        
+        users_data = [
+            {
+                'email': 'user1@example.com',
+                'password': 'pass123456',
+                'password_confirm': 'pass123456',
+                'display_name': 'User One'
+            },
+            {
+                'email': 'user2@example.com', 
+                'password': 'pass789012',
+                'password_confirm': 'pass789012',
+                'display_name': 'User Two'
+            }
+        ]
+        
+        for user_data in users_data:
+            response = self.client.post(url, user_data, format='json')
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+            self.assertIn('token', response.data)
+        
+        # Verify both users exist
+        self.assertEqual(User.objects.count(), 2)
+        self.assertTrue(User.objects.filter(email='user1@example.com').exists())
+        self.assertTrue(User.objects.filter(email='user2@example.com').exists())
+    
+    def test_token_is_unique_per_user(self):
+        """Test that each user gets a unique authentication token"""
+        url = reverse("register")
+        
+        # Create first user
+        response1 = self.client.post(url, {
+            'email': 'token1@example.com',
+            'password': 'testpass123',
+            'password_confirm': 'testpass123'
+        }, format='json')
+        
+        # Create second user  
+        response2 = self.client.post(url, {
+            'email': 'token2@example.com',
+            'password': 'testpass123',
+            'password_confirm': 'testpass123'
+        }, format='json')
+        
+        self.assertEqual(response1.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response2.status_code, status.HTTP_201_CREATED)
+        
+        token1 = response1.data['token']
+        token2 = response2.data['token']
+        
+        # Tokens should be different
+        self.assertNotEqual(token1, token2)
+        
+        # Both tokens should exist and be valid strings
+        self.assertTrue(isinstance(token1, str))
+        self.assertTrue(isinstance(token2, str))
+        self.assertTrue(len(token1) > 10)  # Reasonable token length
+        self.assertTrue(len(token2) > 10)

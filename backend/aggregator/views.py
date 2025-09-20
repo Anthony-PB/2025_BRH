@@ -1,41 +1,24 @@
-from django.shortcuts import render
-from django.http import HttpResponse
-from rest_framework import generics, status
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
-# from .serializers import ArticleSerializer
-from core import db_utils
-# Create your views here.
+from rest_framework import status
 
+@api_view(['GET'])
 def index(request):
-    return HttpResponse("Hello, world. You're at the index.")
-
-
-
-class ArticleListCreateView(generics.ListCreateAPIView):
     """
-    A Generic View adapted for a non-ORM (PyMongo) backend.
+    API root endpoint for the aggregator app
     """
-    # serializer_class = ArticleSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
-    
-    # We don't define 'queryset' because we don't have an ORM QuerySet.
+    return Response({
+        "message": "Content Aggregator API",
+        "version": "1.0",
+        "endpoints": {
+            "users": "/api/users/",
+            "articles": "/api/articles/",
+            "sources": "/api/sources/",
+            "groups": "/api/groups/"
+        }
+    })
 
-    # --- Override for GET (List) ---
-    def get_queryset(self):
-        """
-        Instead of using a 'queryset' attribute, we override this method
-        to provide the list of objects directly from our db_utils.
-        """
-        return db_utils.get_all_articles()
-
-    # --- Override for POST (Create) ---
-    def perform_create(self, serializer):
-        """
-        The default 'perform_create' calls serializer.save(), which tries
-        to save to a Django model. We override it to call our custom
-        db_utils function instead.
-        """
-        # The serializer has already validated the data at this point.
-        # We pass the validated data to our database function.
-        db_utils.create_article(serializer.validated_data)
+# You can add more views here later:
+# @api_view(['GET'])
+# def article_list(request):
+#     return Response({"articles": []})
