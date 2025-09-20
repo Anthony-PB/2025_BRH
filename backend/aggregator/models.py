@@ -1,10 +1,11 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from django_mongodb_backend.fields import ObjectIdAutoField, EmbeddedModelField
+from django_mongodb_backend.models import EmbeddedModel
 
 User = get_user_model()
 
-class SourceInfo(models.Model):
+class SourceInfo(EmbeddedModel):
     """Embedded source information"""
     name = models.CharField(max_length=200)
     base_url = models.URLField()
@@ -17,8 +18,7 @@ class Article(models.Model):
     id = ObjectIdAutoField(primary_key=True)
     
     source = EmbeddedModelField(
-        model_container=SourceInfo,
-        model_form_class=None
+        embedded_model = SourceInfo
     )
     
     title = models.CharField(max_length=500)

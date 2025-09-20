@@ -2,6 +2,12 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 
+"""
+Get Sources
+
+
+"""
+
 @api_view(['GET'])
 def index(request):
     """
@@ -17,6 +23,9 @@ def index(request):
             "groups": "/api/groups/"
         }
     })
+
+#def sourceCreateView(generics.CreateAPIView):
+
 
 # You can add more views here later:
 # @api_view(['GET'])

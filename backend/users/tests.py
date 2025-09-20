@@ -137,30 +137,30 @@ class UserAPISuccessTests(APITestCase):
         self.assertTrue(len(token2) > 10)
 
 
-def test_get_profile(self):
-    """Test getting authenticated user's profile"""
-    url = reverse("profile-manager")
-    response = self.client.get(url)
-    self.assertEqual(response.status_code, status.HTTP_200_OK)
-    self.assertEqual(response.data['email'], self.user.email)
-    self.assertEqual(response.data['display_name'], self.user.display_name)
+    def test_get_profile(self):
+        """Test getting authenticated user's profile"""
+        url = reverse("profile-manager")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['email'], self.user.email)
+        self.assertEqual(response.data['display_name'], self.user.display_name)
 
 
-def test_delete_profile_success(self):
-    """Test successful profile deletion"""
-    user_id = self.user.id
-    url = reverse("profile-manager")
-    response = self.client.delete(url)
-    self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-    self.assertEqual(response.data['message'], 'User deleted successfully.')
-    # Verify user was deleted
-    with self.assertRaises(User.DoesNotExist):
-        User.objects.get(id=user_id)
+    def test_delete_profile_success(self):
+        """Test successful profile deletion"""
+        user_id = self.user.id
+        url = reverse("profile-manager")
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(response.data['message'], 'User deleted successfully.')
+        # Verify user was deleted
+        with self.assertRaises(User.DoesNotExist):
+            User.objects.get(id=user_id)
 
 
-def test_unauthorized_access(self):
-    """Test profile access without authentication"""
-    self.client.logout()  # Remove authentication
-    url = reverse("profile-manager")
-    response = self.client.get(url)
-    self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+    def test_unauthorized_access(self):
+        """Test profile access without authentication"""
+        self.client.logout()  # Remove authentication
+        url = reverse("profile-manager")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
