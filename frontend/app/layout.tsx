@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { inter } from "./fonts";
 
 export const metadata: Metadata = {
   title: "Next.js + MongoDB",
@@ -13,8 +12,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} dark`}>
-      <body>{children}</body>
+    <html lang="en">
+      <body className="bg-white text-[#0C0D0D]">{children}</body>
     </html>
   );
 }
