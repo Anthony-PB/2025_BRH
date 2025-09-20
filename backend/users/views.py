@@ -35,7 +35,8 @@ class RegisterUserView(generics.CreateAPIView):
 class UserView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     permission_classes = [IsAuthenticated]
-
+    serializer_class = UserRegistrationSerializer
+    
     def get_object(self):
         """
         Override this method to ensure users can only

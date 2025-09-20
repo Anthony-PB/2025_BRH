@@ -142,16 +142,32 @@ class UserAPISuccessTests(APITestCase):
 
     def test_get_profile(self):
         """Test getting authenticated user's profile"""
+        data = {
+            'email': 'minimal@example.com',
+            'password': 'securepass456',
+            'password_confirm': 'securepass456'
+        }
+
+        response = self.client.post(reverse('register'), data, format='json')
+        self.client.force_authenticate(user=User.objects.get_by_natural_key(response.data['user']['email']))
         url = reverse("profile-manager")
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['email'], self.user.email)
-        self.assertEqual(response.data['display_name'], self.user.display_name)
+        self.assertEqual(response.data['email'], 'minimal@example.com')
+        self.assertEqual(response.data['display_name'], '')
 
 
     def test_delete_profile_success(self):
         """Test successful profile deletion"""
-        user_id = self.user.id
+        data = {
+            'email': 'minimal@example.com',
+            'password': 'securepass456',
+            'password_confirm': 'securepass456'
+        }
+
+        response = self.client.post(reverse('register'), data, format='json')
+        self.client.force_authenticate(user=User.objects.get_by_natural_key(response.data['user']['email']))
+        user_id = response.data['user']['id']
         url = reverse("profile-manager")
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
