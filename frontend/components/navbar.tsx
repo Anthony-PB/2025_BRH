@@ -1,6 +1,5 @@
 import Link from "next/link";
 import {Brain} from "lucide-react";
-import Image from "next/image";
 import { Button } from "./ui/button";
 
 export default async function Navbar() {
