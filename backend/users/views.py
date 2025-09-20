@@ -1,27 +1,33 @@
-from django.shortcuts import render
-from django.http import HttpResponse
 from rest_framework import generics, status
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
+from rest_framework.authtoken.models import Token
+from django.contrib.auth import get_user_model
+from .serializers import UserRegistrationSerializer
 
-from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
-from .serializers import PydanticUserRegistrationSerializer
-from core import db_utils
-
-# Create your views here.
+User = get_user_model()
 
 class RegisterUserView(generics.CreateAPIView):
-    """
-    An API endpoint that allows new users to be created.
-    Uses the CreateAPIView for a clean, single-purpose implementation.
-    """
-    serializer_class = PydanticUserRegistrationSerializer
+    queryset = User.objects.all()
+    serializer_class = UserRegistrationSerializer
     permission_classes = [AllowAny]
-
-    def perform_create(self, serializer):
-        """
-        The default 'perform_create' calls serializer.save(), which tries
-        to save to a Django model. We override it to call our custom
-        db_utils function instead.
-        """
-        serializer.save()
-
+    
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        
+        # Create authentication token
+        token, created = Token.objects.get_or_create(user=user)
+        
+        return Response({
+            'message': 'User created successfully',
+            'user': {
+                'id': str(user.id),
+                'email': user.email,
+                'display_name': getattr(user, 'display_name', ''),
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+            },
+            'token': token.key  # Add this line
+        }, status=status.HTTP_201_CREATED)
