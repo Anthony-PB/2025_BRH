@@ -1,2 +1,16 @@
 venv/
 mongoDBpassword.txt
+node_modules/
+.env
+*.env
+.next/
+out/
+build/
+dist/
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
