@@ -15,9 +15,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'email', 
-            'password', 
-            'password_confirm',
+            'email',
             'first_name', 
             'last_name', 
             'display_name'
@@ -26,6 +24,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         if attrs['password'] != attrs['password_confirm']:
             raise serializers.ValidationError("Passwords don't match")
+        if attrs.get('email', None) == None:
+            raise serializers.ValidationError("An email is required")
         return attrs
     
     def create(self, validated_data):

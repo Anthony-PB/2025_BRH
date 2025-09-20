@@ -30,6 +30,7 @@ class UserAPISuccessTests(APITestCase):
         self.assertIn('user', response.data)
         self.assertEqual(response.data['user']['email'], 'test@example.com')
         self.assertEqual(response.data['user']['display_name'], 'TestUser')
+        self.assertNotIn('password_hash', response.data)
 
         # Verify user exists in database
         self.assertTrue(User.objects.filter(email='test@example.com').exists())
@@ -48,7 +49,7 @@ class UserAPISuccessTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertIn('token', response.data)
         self.assertEqual(response.data['user']['email'], 'minimal@example.com')
-
+        self.assertNotIn('password_hash', response.data)
         # Verify user was created
         user = User.objects.get(email='minimal@example.com')
         self.assertEqual(user.email, 'minimal@example.com')
@@ -69,9 +70,10 @@ class UserAPISuccessTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertIn('token', response.data)
-        self.assertTrue(User.objects.filter(
-            email='longpass@example.com').exists())
+        self.assertNotIn('password_hash', response.data)
 
+        self.assertTrue(User.objects.filter(email='longpass@example.com').exists())
+        
     def test_create_multiple_users(self):
         """Test creating multiple users successfully"""
         url = reverse("register")
@@ -95,7 +97,8 @@ class UserAPISuccessTests(APITestCase):
             response = self.client.post(url, user_data, format='json')
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
             self.assertIn('token', response.data)
-
+            self.assertNotIn('password_hash', response.data)
+        
         # Verify both users exist
         self.assertEqual(User.objects.count(), 2)
         self.assertTrue(User.objects.filter(

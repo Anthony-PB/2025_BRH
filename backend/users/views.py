@@ -1,6 +1,6 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import get_user_model
 from .serializers import UserRegistrationSerializer
@@ -31,3 +31,27 @@ class RegisterUserView(generics.CreateAPIView):
             },
             'token': token.key  # Add this line
         }, status=status.HTTP_201_CREATED)
+    
+class UserView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = User.objects.all()
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        """
+        Override this method to ensure users can only
+        view, update, or delete their own profile.
+        """
+        return self.request.user
+
+    def destroy(self, request, *args, **kwargs):
+        """
+        Custom logic for when a user is deleted.
+        """
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        # You can add custom logic here, like logging out the user
+        # TODO: Think about logging out?
+        return Response(
+            {"message": "User deleted successfully."},
+            status=status.HTTP_204_NO_CONTENT
+        )
