@@ -2,7 +2,7 @@
 import { ArrowRight, FileText, LogIn } from "lucide-react";
 import { dbConnectionStatus } from "@/db/connection-status";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-
+import { Button } from "@/components/ui/button";
 
 export default async function Home() {
   const result = await dbConnectionStatus();
