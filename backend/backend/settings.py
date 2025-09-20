@@ -75,7 +75,7 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django_mongodb_backend',
-        'HOST': 'mongodb://localhost:27017/',
+        'HOST': "mongodb+srv://ae427:IXywD8oLCYzTneW4@bigredhacks.dlhjld.mongodb.net/?retryWrites=true&w=majority&appName=BigRedHacks",
         'NAME': 'backend',
     },
 }
