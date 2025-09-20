@@ -11,8 +11,8 @@ export default async function Navbar() {
                 <p className="text-xl font-bold">Name</p>
             </Link>
             <div className="flex items-center gap-12">
-                <div className="text-black font-bold text-xl hover:text-gray-600">Browse</div>
-                <div className="text-black font-bold text-xl hover:text-gray-600">Bookmark</div>
+                <Link  href="/browse" className="text-black font-bold text-xl hover:text-gray-600">Browse</Link>
+                <Link href="/bookmark" className="text-black font-bold text-xl hover:text-gray-600">Bookmark</Link>
                 <div className="text-black dark:text-white sm:flex hidden items-center">
                     <a href="/sign-in">
                         <Button variant="default" className="text-lg font-bold hover:bg-gray-600">Sign Up</Button>
