@@ -1,15 +1,12 @@
-version: '3.8'
-
 services:
   backend:
     build: ./backend
     command: gunicorn backend.wsgi:application --bind 0.0.0.0:8000
-    volumes:
-      - ./backend:/app
+    # The 'volumes' section has been removed
     expose:
       - 8000
     env_file:
-      - ./.env # For storing secrets and the DB connection string
+      - ./.env
 
   nginx:
     build: ./frontend
