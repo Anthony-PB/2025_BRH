@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from django.apps import apps
 from django.contrib.auth.password_validation import validate_password
-from aggregator.models import Source
 User = get_user_model()
 
 
@@ -54,7 +54,8 @@ class UserFollowSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'email']
 
     def get_followed_sources(self, obj):
-        # Return full source info for each ID the user follows
+        # Lazy import to avoid circular imports
+        Source = apps.get_model('aggregator', 'Source')
         return list(Source.objects.filter(id__in=obj.followed_source_ids).values(
             'id', 'name', 'base_url', 'feed_url', 'category', 'is_rss'
         ))
