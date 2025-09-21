@@ -18,7 +18,6 @@ export const createUser = async (displayName: string, email: string, password: s
         const data = await response.json();
 
         if (response.ok) {
-            localStorage.setItem('authToken', data.token);
             return { success: true, user: data.user, token: data.token };
         } else {
             return { success: false, error: data };
@@ -41,7 +40,6 @@ export const loginUser = async (email: string, password: string) => {
         const data = await response.json();
 
         if (response.ok) {
-            localStorage.setItem('authToken', data.token);
             return { success: true, user: data.user, token: data.token };
         } else {
             return { success: false, error: data.error || 'Login failed' };

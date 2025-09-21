@@ -2,6 +2,8 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useState } from 'react';
 import { createUser, loginUser } from '@/api/auth';
+import { useRouter} from 'next/navigation';
+import { useAuth } from '@/api/authContext';
 
 export default function SignIn() {
     const [activeTab, setActiveTab] = useState('login');
@@ -12,6 +14,8 @@ export default function SignIn() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [emailError, setEmailError] = useState<string | null>(null);
+    const router = useRouter();
+    const { login } = useAuth();
 
     const validateEmail = (email: string): boolean => {
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -33,18 +37,19 @@ export default function SignIn() {
         setError(null);
         
         try {
-            console.log('Submitting:', { email, password, displayName, activeTab, confirmPassword });
+            let result;
             
-            // Simulate API call
             if (activeTab === 'login') {
-                await loginUser(email, password);
+               result = await loginUser(email, password);
             } else {
-                await createUser(displayName, email, password, confirmPassword);
+               result = await createUser(displayName, email, password, confirmPassword);
             }
             
             // On success, redirect or update UI as needed
-            
-            console.log('Success!');
+            if (result.success) {
+                login(result.token, result.user);
+            }
+            router.push('/browse');
         } catch (err) {
             setError('Authentication failed. Please try again.');
         } finally {
