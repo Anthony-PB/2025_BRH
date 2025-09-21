@@ -29,7 +29,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-t+m5kc&@jk_ih^j92i$ujuft&u!uv+jrpxyezoh96zxr$f!&oa')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 0)
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
 
@@ -92,7 +92,7 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django_mongodb_backend',
-        'HOST': os.getenv('MONGODB_URI', "mongodb+srv://ae427:IXywD8oLCYzTneW4@bigredhacks.dlhjld.mongodb.net/?retryWrites=true&w=majority&appName=BigRedHacks"),
+        'HOST': os.getenv('MONGODB_CONNECTION_STRING', ''),
         'NAME': 'content_aggregator',  # Better name for your project
     },
 }

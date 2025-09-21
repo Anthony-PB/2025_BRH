@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    command: gunicorn your_project_name.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - ./backend:/app
+    expose:
+      - 8000
+    env_file:
+      - ./.env # For storing secrets and the DB connection string
+
+  nginx:
+    build: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
