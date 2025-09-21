@@ -18,22 +18,18 @@ export default async function Home() {
         <CardCell> 
           <CardImage>
             <Image
-              src="/talking.png"
+              src="/browse.png"
               alt="Some alt text"
               width={400}
-              height={250}
-              className="w-full h-48 object-cover"
+              height={800}
+              className="w-full h-100 object-cover rounded-t-lg border-2"
             />
           </CardImage>
-          <CardHeader>
-            <CardTitle>Title</CardTitle>
-            <CardDescription>Description of article</CardDescription>
-          </CardHeader>
         </CardCell>
         <ProviderCarousel/>
-        <div className="max-w-full flex gap-12 overflow-y-none">          
+        <div className="max-w-full flex gap-12 overflow-y-none mt-16 mb-4">          
           <Image
-            src="/talking.png"
+            src="/reading_newspaper.png"
             alt="Some alt text"
             width={640}
             height={480}
@@ -54,7 +50,7 @@ export default async function Home() {
             </div>
           </div>
           <Image
-            src="/talking.png"
+            src="/mult.png"
             alt="Some alt text"
             width={640}
             height={480}
