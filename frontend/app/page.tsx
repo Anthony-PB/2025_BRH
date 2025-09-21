@@ -1,11 +1,8 @@
-import { ArrowRight, FileText, LogIn } from "lucide-react";
 import { dbConnectionStatus } from "@/db/connection-status";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle} from '@/components/ui/card';
-import { Button } from "@/components/ui/button";
+import { CardDescription, CardHeader, CardTitle} from '@/components/ui/card';
 import {CardCell, CardImage } from "@/components/ui/cardCell";
 import Image from "next/image";
 import ProviderCarousel from "@/components/provider-carousel"
-import { Brain } from "lucide-react";
 
 export default async function Home() {
   const result = await dbConnectionStatus();
