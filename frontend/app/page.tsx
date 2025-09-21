@@ -10,7 +10,7 @@ export default async function Home() {
     <div className="flex min-h-screen flex-col">
       <div className="mx-auto flex w-full max-w-lg flex-1 flex-col px-5 lg:max-w-7xl gap-12">
         <div className="flex justify-center mt-20 text-4xl font-bold">
-          Brand Name
+          FeedStream
         </div>
         <div className="flex justify-center text-xl">
           Description of the website
