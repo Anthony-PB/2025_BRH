@@ -1,19 +1,24 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import get_user_model
 from .serializers import UserRegistrationSerializer
+# Make sure this import path matches your project structure
+from aggregator.models import Source
 # Make sure this import path matches your project structure
 from aggregator.models import Source
 
 User = get_user_model()
 
 
+
 class RegisterUserView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserRegistrationSerializer
     permission_classes = [AllowAny]
+
 
     def create(self, request, *args, **kwargs):
         print(f"Request data received: {request.data}")

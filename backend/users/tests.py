@@ -31,7 +31,6 @@ class UserAPISuccessTests(APITestCase):
         self.assertEqual(response.data['user']['email'], 'test@example.com')
         self.assertEqual(response.data['user']['display_name'], 'TestUser')
         self.assertNotIn('password_hash', response.data)
-        self.assertNotIn('password_hash', response.data)
 
         # Verify user exists in database
         self.assertTrue(User.objects.filter(email='test@example.com').exists())
@@ -50,7 +49,6 @@ class UserAPISuccessTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertIn('token', response.data)
         self.assertEqual(response.data['user']['email'], 'minimal@example.com')
-        self.assertNotIn('password_hash', response.data)
         self.assertNotIn('password_hash', response.data)
         # Verify user was created
         user = User.objects.get(email='minimal@example.com')
@@ -72,6 +70,8 @@ class UserAPISuccessTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertIn('token', response.data)
+        self.assertNotIn('password_hash', response.data)
+
         self.assertNotIn('password_hash', response.data)
 
         self.assertTrue(User.objects.filter(
@@ -100,6 +100,7 @@ class UserAPISuccessTests(APITestCase):
             response = self.client.post(url, user_data, format='json')
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
             self.assertIn('token', response.data)
+            self.assertNotIn('password_hash', response.data)
             self.assertNotIn('password_hash', response.data)
 
         # Verify both users exist
@@ -153,9 +154,20 @@ class UserAPISuccessTests(APITestCase):
         response = self.client.post(reverse('register'), data, format='json')
         self.client.force_authenticate(
             user=User.objects.get_by_natural_key(response.data['user']['email']))
+        data = {
+            'email': 'minimal@example.com',
+            'password': 'securepass456',
+            'password_confirm': 'securepass456'
+        }
+
+        response = self.client.post(reverse('register'), data, format='json')
+        self.client.force_authenticate(
+            user=User.objects.get_by_natural_key(response.data['user']['email']))
         url = reverse("profile-manager")
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['email'], 'minimal@example.com')
+        self.assertEqual(response.data['display_name'], '')
         self.assertEqual(response.data['email'], 'minimal@example.com')
         self.assertEqual(response.data['display_name'], '')
 
@@ -171,9 +183,21 @@ class UserAPISuccessTests(APITestCase):
         self.client.force_authenticate(
             user=User.objects.get_by_natural_key(response.data['user']['email']))
         user_id = response.data['user']['id']
+        data = {
+            'email': 'minimal@example.com',
+            'password': 'securepass456',
+            'password_confirm': 'securepass456'
+        }
+
+        response = self.client.post(reverse('register'), data, format='json')
+        self.client.force_authenticate(
+            user=User.objects.get_by_natural_key(response.data['user']['email']))
+        user_id = response.data['user']['id']
         url = reverse("profile-manager")
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(response.data['message'],
+                         'User deleted successfully.')
         self.assertEqual(response.data['message'],
                          'User deleted successfully.')
         # Verify user was deleted

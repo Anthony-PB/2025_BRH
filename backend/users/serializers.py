@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from django.apps import apps
 from django.contrib.auth.password_validation import validate_password
 from aggregator.models import Source
 User = get_user_model()
@@ -9,20 +10,22 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
         write_only=True,
         min_length=6,
+        write_only=True,
+        min_length=6,
         validators=[validate_password]
     )
     password_confirm = serializers.CharField(write_only=True)
+
 
     class Meta:
         model = User
         fields = [
             'email',
             'password',
-            'email',
-            'password',
             'password_confirm',
             'display_name'
         ]
+
 
     def validate(self, attrs):
         print("=== VALIDATE METHOD CALLED ===")
@@ -34,6 +37,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         
         print("Validation passed")
         return attrs
+
 
     def create(self, validated_data):
         
