@@ -17,6 +17,7 @@ export default function SignIn() {
     const router = useRouter();
     const { login } = useAuth();
 
+
     const validateEmail = (email: string): boolean => {
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         return emailRegex.test(email);
@@ -40,16 +41,19 @@ export default function SignIn() {
             let result;
             
             if (activeTab === 'login') {
-               result = await loginUser(email, password);
+                result = await loginUser(email, password);
             } else {
                result = await createUser(displayName, email, password, confirmPassword);
             }
             
             // On success, redirect or update UI as needed
             if (result.success) {
-                login(result.token, result.user);
-            }
-            router.push('/browse');
+                login(result.token, result.user);   // 👈 only once
+                // wait one tick so React updates context before redirect
+                setTimeout(() => {
+                    router.push("/browse");
+                }, 0);
+                }
         } catch (err) {
             setError('Authentication failed. Please try again.');
         } finally {
