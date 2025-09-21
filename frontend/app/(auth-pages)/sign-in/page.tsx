@@ -171,6 +171,8 @@ export default function SignIn() {
                                 minLength={6}
                             />
                         </div>
+
+                        {activeTab === 'register' &&(
                         <div>
                             <label htmlFor="confirm-password" className="block text-md font-semibold text-gray-700 mb-1">
                                 Confirm Password
@@ -186,6 +188,7 @@ export default function SignIn() {
                                 minLength={6}
                             />
                         </div>
+                        )}
 
                         {activeTab === 'register' && (
                             <div className="text-sm text-gray-600">
