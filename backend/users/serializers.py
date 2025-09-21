@@ -67,7 +67,7 @@ class UserLoginSerializer(serializers.ModelSerializer):
     
     def validate(self, attrs):
         
-        if User.objects.filter(email=attrs['email']).exists():
+        if not User.objects.filter(email=attrs['email']).exists():
             raise serializers.ValidationError("Email is not registered to a user.")
 
         user = User.objects.get(email=attrs['email'])

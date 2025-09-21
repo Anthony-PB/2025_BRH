@@ -4,9 +4,10 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
 from django.contrib.auth import get_user_model
-from .serializers import UserRegistrationSerializer
+from .serializers import UserRegistrationSerializer, UserFollowSerializer, UserLoginSerializer
 # Make sure this import path matches your project structure
 from aggregator.models import Source
+from django.contrib.auth import authenticate
 
 User = get_user_model()
 
@@ -89,26 +90,35 @@ class UnfollowSourceView(generics.GenericAPIView):
         user.unfollow_source(source_id)
         return Response({'message': 'Source unfollowed successfully'}, status=status.HTTP_200_OK)
     
-class LoginUserView(APIView):
+class LoginUserView(generics.GenericAPIView):
     permission_classes = [AllowAny]
+    serializer_class = UserLoginSerializer
 
     def post(self, request):
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            user = User.objects.get(email=request.data['email'])
-            # Create authentication token
+        email = request.data.get('email')
+        password = request.data.get('password')
+        
+        if not email or not password:
+            return Response({
+                'error': 'Email and password required'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Use Django's authenticate which handles password hashing
+        user = authenticate(username=email, password=password)
+        
+        if user:
             token, created = Token.objects.get_or_create(user=user)
             
             return Response({
-                'message': 'User created successfully',
+                'message': 'Login successful',  # Fixed message
                 'user': {
                     'id': str(user.id),
                     'email': user.email,
                     'display_name': getattr(user, 'display_name', ''),
-                    'first_name': user.first_name,
-                    'last_name': user.last_name,
                 },
-                'token': token.key  # Add this line
-            }, status=status.HTTP_201_CREATED)
+                'token': token.key
+            }, status=status.HTTP_200_OK)  # Fixed status code
         else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({
+                'error': 'Invalid credentials'
+            }, status=status.HTTP_401_UNAUTHORIZED)
