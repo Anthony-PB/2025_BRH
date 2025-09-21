@@ -15,21 +15,19 @@ class SourceTests(APITestCase):
 
     def test_create_multiple_sources(self):
         """Test creating multiple sources successfully"""
-        url = reverse("source-create")  # matches your urls.py name
+        url = reverse("source-create-list")  # matches your urls.py name
 
         sources_data = [
             {
                 'name': 'TechCrunch',
-                'base_url': 'https://techcrunch.com',
-                'feed_url': 'https://techcrunch.com/feed',
+                'url': 'https://techcrunch.com/feed',
                 'is_rss': True,
                 'category': 'Technology',
                 'is_active': True
             },
             {
                 'name': 'BBC News',
-                'base_url': 'https://bbc.com',
-                'feed_url': 'https://bbc.com/news/rss.xml',
+                'url': 'https://bbc.com/news/rss.xml',
                 'is_rss': True,
                 'category': 'News',
                 'is_active': True
@@ -50,13 +48,13 @@ class SourceTests(APITestCase):
 
     def test_list_active_sources(self):
         """Test listing only active sources"""
-        url = reverse("source-create")  # same endpoint for list (GET)
+        url = reverse("source-create-list")  # same endpoint for list (GET)
 
         # Create sources manually
         Source.objects.create(name='Active Source',
-                              base_url='https://active.com', is_active=True)
+                              url='https://active.com', is_active=True)
         Source.objects.create(name='Inactive Source',
-                              base_url='https://inactive.com', is_active=False)
+                              url='https://inactive.com', is_active=False)
 
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -65,7 +63,7 @@ class SourceTests(APITestCase):
 
     def test_list_when_no_active_sources(self):
         """Test listing sources when none are active"""
-        url = reverse("source-create")  # use local variable
+        url = reverse("source-create-list")  # use local variable
         Source.objects.update(is_active=False)
         response = self.client.get(url, format='json')  # use url, not self.url
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -87,7 +85,7 @@ class UserFollowTests(APITestCase):
         # Create a test source
         self.source = Source.objects.create(
             name="Test Source",
-            base_url="https://example.com",
+            url="https://example.com",
             is_active=True
         )
 

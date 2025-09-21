@@ -1,8 +1,7 @@
 from django.urls import path
-from .views import SourceView
+from .views import SourceView, LoadFromSource
 
 urlpatterns = [
-    path("sources/", views.SourceView.as_view(), name="source-create-list"),
-    path("sources/get/<str:guid>",
-         views.LoadFromSource.as_view(), name="get-from-source"),
+    path("sources/", SourceView.as_view(), name="source-create-list"),
+    path("sources/get/<str:guid>", LoadFromSource.as_view(), name="get-from-source"),
 ]
