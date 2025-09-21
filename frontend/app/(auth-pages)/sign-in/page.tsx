@@ -34,6 +34,28 @@ export default function SignIn() {
     };
 
     const handleSubmit = async () => {
+        // Add validation before API call
+        if (!validateEmail(email)) {
+            setEmailError('Please enter a valid email address');
+            return;
+        }
+        
+        if (password.length < 6) {
+            setError('Password must be at least 6 characters long');
+            return;
+        }
+        
+        if (activeTab === 'register') {
+            if (!displayName.trim()) {
+                setError('Display name is required');
+                return;
+            }
+            if (password !== confirmPassword) {
+                setError('Passwords do not match');
+                return;
+            }
+        }
+
         setLoading(true);
         setError(null);
         
@@ -43,18 +65,34 @@ export default function SignIn() {
             if (activeTab === 'login') {
                 result = await loginUser(email, password);
             } else {
-               result = await createUser(displayName, email, password, confirmPassword);
+            result = await createUser(displayName, email, password, confirmPassword);
             }
             
-            // On success, redirect or update UI as needed
             if (result.success) {
-                login(result.token, result.user);   // 👈 only once
-                // wait one tick so React updates context before redirect
-                setTimeout(() => {
-                    router.push("/browse");
-                }, 0);
+                login(result.token, result.user);
+                router.push("/browse");
+            } else {
+                // Handle error object properly
+                let errorMessage = 'Authentication failed';
+                
+                if (result.error) {
+                    if (typeof result.error === 'string') {
+                        errorMessage = result.error;
+                    } else if (result.error.message) {
+                        errorMessage = result.error.message;
+                    } else if (result.error.email) {
+                        errorMessage = result.error.email[0] || result.error.email;
+                    } else if (result.error.non_field_errors) {
+                        errorMessage = result.error.non_field_errors[0];
+                    } else {
+                        errorMessage = 'Please check your credentials and try again';
+                    }
                 }
+                
+                setError(errorMessage);
+            }
         } catch (err) {
+            console.error(err);
             setError('Authentication failed. Please try again.');
         } finally {
             setLoading(false);

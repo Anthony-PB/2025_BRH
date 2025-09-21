@@ -6,47 +6,36 @@ from aggregator.models import Source
 User = get_user_model()
 
 
+from rest_framework import serializers
+from django.contrib.auth import get_user_model
+from aggregator.models import Source
+
+User = get_user_model()
+
 class UserRegistrationSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(
-        write_only=True,
-        min_length=6,
-        validators=[validate_password]
+    password = serializers.CharField(write_only=True, min_length=6, 
+    #validators=[validate_password]
     )
     password_confirm = serializers.CharField(write_only=True)
 
-
     class Meta:
         model = User
-        fields = [
-            'email',
-            'password',
-            'password_confirm',
-            'display_name'
-        ]
-
+        fields = ['email', 'password', 'password_confirm', 'display_name']
 
     def validate(self, attrs):
-        
         if attrs['password'] != attrs['password_confirm']:
             raise serializers.ValidationError("Passwords don't match")
-
         return attrs
 
-
     def create(self, validated_data):
-        
         validated_data.pop('password_confirm')
-        
-        try:
-            user = User.objects.create_user(
-                username=validated_data['email'],
-                email=validated_data['email'],
-                password=validated_data['password'],
-                display_name=validated_data.get('display_name', ''),
-            )
-            return user
-        except Exception as e:
-            raise
+        user = User.objects.create_user(
+            username=validated_data['email'],
+            email=validated_data['email'],
+            password=validated_data['password'],
+            display_name=validated_data.get('display_name', ''),
+        )
+        return user
 
 class UserFollowSerializer(serializers.ModelSerializer):
     followed_sources = serializers.SerializerMethodField()
