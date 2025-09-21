@@ -9,6 +9,7 @@ from rest_framework.views import APIView
 from .models import Source, Article
 from .serializers import SourceSerializer, ArticleSerializer
 
+
 class SourceView(generics.ListCreateAPIView):
     queryset = Source.objects.all()
     serializer_class = SourceSerializer
@@ -23,7 +24,7 @@ class SourceView(generics.ListCreateAPIView):
             'message': 'Source created successfully',
             'source': serializer.data
         }, status=status.HTTP_201_CREATED)
-    
+
     def list(self, request, *args, **kwargs):
         sources = Source.objects.filter(is_active=True)
         serializer = self.get_serializer(sources, many=True)
@@ -31,7 +32,8 @@ class SourceView(generics.ListCreateAPIView):
             'sources': serializer.data,
             'count': sources.count()
         }, status=status.HTTP_200_OK)
-    
+
+
 class LoadFromSource(APIView):
     """
     Endpoint to load the most recent items from the given source.
@@ -43,13 +45,54 @@ class LoadFromSource(APIView):
         Gets the most request.data['count'] recent items from the source found by guid.
         """
         count = int(request.query_params.get('count', 10))
-        source : Source = Source.objects.get(id=guid)
-        d : feedparser.FeedParserDict = feedparser.parse(source.url)
+        source: Source = Source.objects.get(id=guid)
+        d: feedparser.FeedParserDict = feedparser.parse(source.url)
         out = []
         for entry in d.entries[:count]:
-            out.append({'title': entry.get('title', None), 
-                      'link': entry.get('link', None), 
-                      'date_published': dateparser.parse(entry.get('published', None)),
-                      'aggregated_at': datetime.now()})
+            out.append({'title': entry.get('title', None),
+                        'link': entry.get('link', None),
+                        'date_published': dateparser.parse(entry.get('published', None)),
+                        'aggregated_at': datetime.now()})
         out.sort(key=lambda x: x['date_published'], reverse=True)
         return Response({'results': out}, status=status.HTTP_200_OK)
+
+
+class ParseFeedView(APIView):
+    def post(self, request):
+        feed_url = request.data.get("url")
+        if not feed_url:
+            return Response({"error": "URL is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        feed = feedparser.parse(feed_url)
+
+        if feed.bozo:
+            return Response({"error": "Invalid or unreadable feed"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Try to extract image from feed metadata
+        image_url = None
+
+        if "image" in feed.feed and "href" in feed.feed.image:
+            image_url = feed.feed.image["href"]
+        elif "logo" in feed.feed:
+            image_url = feed.feed.logo
+        elif "icon" in feed.feed:
+            image_url = feed.feed.icon
+
+        # Fallback: check for media:thumbnail or media:content inside entries
+        if not image_url and "entries" in feed.entries:
+            for entry in feed.entries:
+                media = entry.get("media_thumbnail") or entry.get(
+                    "media_content")
+                if media and "url" in media[0]:
+                    image_url = media[0]["url"]
+                    break
+                enclosures = entry.get("enclosures")
+                if enclosures and len(enclosures) > 0 and "href" in enclosures[0]:
+                    image_url = enclosures[0]["href"]
+                    break
+        return Response({
+            "title": feed.feed.get("title"),
+            "link": feed.feed.get("link"),
+            "description": feed.feed.get("description"),
+            "image_url": image_url
+        })

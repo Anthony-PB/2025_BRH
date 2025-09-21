@@ -69,22 +69,28 @@ class SourceTests(APITestCase):
         self.assertEqual(response.data['count'], 0)
         self.assertEqual(response.data['sources'], [])
 
+
 class LoadFromSourceTests(APITestCase):
     def test_load_small_rss(self):
-        item = Source.objects.create(**{'name': 'ExampleRSS', 
-                               'url': 'https://files.catbox.moe/ppfxwh.xml', 
-                               'category':'Extra', 
-                               'is_rss': True})
+        item = Source.objects.create(
+            name='ExampleRSS',
+            url='https://files.catbox.moe/ppfxwh.xml',
+            category='Extra',
+            is_rss=True
+        )
         self.assertTrue(Source.objects.filter(name="ExampleRSS").exists())
-        url = reverse("get-from-source", args=(item.id,), query={'count': 2})
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        url = reverse("get-from-source", args=[item.id])
+        response = self.client.get(url, {'count': 2})  # Pass query params here
+
+        self.assertEqual(response.status_code, 200)
         self.assertIn('results', response.data)
         self.assertEqual(len(response.data['results']), 2)
 
         l = response.data['results']
         self.assertEqual(l[0]['title'], 'First Test Item')
         self.assertEqual(l[0]['link'], 'http://www.example.com/item1')
-        self.assertEqual(l[0]['date_published'], dateparser.parse("Thu, 19 Sep 2025 10:00:00 EDT"))
-        self.assertTrue(all(l[i]['date_published'] >= l[i + 1]['date_published'] for i in range(len(l) - 1)))
-
+        self.assertEqual(l[0]['date_published'], dateparser.parse(
+            "Thu, 19 Sep 2025 10:00:00 EDT"))
+        self.assertTrue(all(l[i]['date_published'] >= l[i + 1]
+                        ['date_published'] for i in range(len(l) - 1)))
