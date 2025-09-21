@@ -10,7 +10,7 @@ export default async function Home() {
     <div className="flex min-h-screen flex-col">
       <div className="mx-auto flex w-full max-w-lg flex-1 flex-col px-5 lg:max-w-7xl gap-12">
         <div className="flex justify-center mt-20 text-4xl font-bold">
-          Brand Name
+          FeedStream
         </div>
         <div className="flex justify-center text-xl">
           Description of the website
@@ -18,22 +18,18 @@ export default async function Home() {
         <CardCell> 
           <CardImage>
             <Image
-              src="/talking.png"
+              src="/browse.png"
               alt="Some alt text"
               width={400}
-              height={250}
-              className="w-full h-48 object-cover"
+              height={800}
+              className="w-full h-100 object-cover rounded-t-lg border-2"
             />
           </CardImage>
-          <CardHeader>
-            <CardTitle>Title</CardTitle>
-            <CardDescription>Description of article</CardDescription>
-          </CardHeader>
         </CardCell>
         <ProviderCarousel/>
-        <div className="max-w-full flex gap-12 overflow-y-none">          
+        <div className="max-w-full flex gap-12 overflow-y-none mt-16 mb-4">          
           <Image
-            src="/talking.png"
+            src="/reading_newspaper.png"
             alt="Some alt text"
             width={640}
             height={480}
@@ -54,7 +50,7 @@ export default async function Home() {
             </div>
           </div>
           <Image
-            src="/talking.png"
+            src="/mult.png"
             alt="Some alt text"
             width={640}
             height={480}
