@@ -49,12 +49,12 @@ export default async function Browse() {
                   />
                 </CardImage>
                 <CardHeader className="flex-shrink-0">
-                  <CardTitle className="text-lg font-semibold line-clamp-3 leading-tight">
+                  <CardTitle className="text-lg font-semibold line-clamp-3 leading-tight mb-0">
                     {article.title}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="flex-1 flex flex-col justify-between">
-                  <div className="text-sm text-gray-600 mb-4">
+                  <div className="text-sm text-gray-600 mb-2">
                     Published: {formatDate(article.date_published)}
                   </div>
                   <a 
