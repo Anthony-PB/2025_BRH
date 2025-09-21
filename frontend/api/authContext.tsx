@@ -14,16 +14,24 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const savedToken = localStorage.getItem("authToken");
-    const savedUser = localStorage.getItem("authUser");
+    try {
+        const savedToken = localStorage.getItem("authToken");
+        const savedUser = localStorage.getItem("authUser");
 
-    if (savedToken) {
-      setToken(savedToken);
-    }
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
+        if (savedToken) {
+            setToken(savedToken);
+        }
+        if (savedUser) {
+            setUser(JSON.parse(savedUser));
+        }
+    } catch (error) {
+        console.error("Failed to initialize auth from storage", error);
+    } finally {
+        // 2. Set loading to false after checking storage
+        setLoading(false);
     }
   }, []);
 
@@ -46,6 +54,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     window.location.href = "/";
   };
 
+    // 3. Don't render the app until the check is complete
+  if (loading) {
+    return null; // Or you could return a full-page loading spinner
+  }
+  
   return (
     <AuthContext.Provider value={{ user, token, login, logout }}>
       {children}
