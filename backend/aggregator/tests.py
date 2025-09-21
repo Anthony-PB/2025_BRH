@@ -1,8 +1,11 @@
 from django.test import TestCase
-from rest_framework.test import APITestCase
+from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
 from django.urls import reverse
 from .models import Source
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 
 class SourceTests(APITestCase):
@@ -56,3 +59,49 @@ class SourceTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['count'], 1)
         self.assertEqual(response.data['sources'][0]['name'], 'Active Source')
+
+    def test_list_when_no_active_sources(self):
+        """Test listing sources when none are active"""
+        url = reverse("source-create")  # use local variable
+        Source.objects.update(is_active=False)
+        response = self.client.get(url, format='json')  # use url, not self.url
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['count'], 0)
+        self.assertEqual(response.data['sources'], [])
+
+
+class UserFollowTests(APITestCase):
+    def setUp(self):
+        self.client = APIClient()
+
+        # Create a test user
+        self.user = User.objects.create_user(
+            username="testuser@example.com",
+            email="testuser@example.com",
+            password="password123"
+        )
+
+        # Create a test source
+        self.source = Source.objects.create(
+            name="Test Source",
+            base_url="https://example.com",
+            is_active=True
+        )
+
+        # Authenticate client
+        self.client.force_authenticate(user=self.user)
+
+    def test_follow_source(self):
+        url = reverse('follow-source', args=[str(self.source.id)])
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(str(self.source.id), self.user.followed_source_ids)
+
+    def test_unfollow_source(self):
+        # First follow it
+        self.user.follow_source(self.source.id)
+
+        url = reverse('unfollow-source', args=[str(self.source.id)])
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn(str(self.source.id), self.user.followed_source_ids)
