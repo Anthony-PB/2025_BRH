@@ -31,9 +31,9 @@ export default function Navbar() {
                 ) : (
                     <>
                     <div className="text-black dark:text-white sm:flex hidden items-center">
-                        <a href="/sign-in">
+                        <Link href="/sign-in">
                             <Button variant="default" className="text-lg font-bold hover:bg-gray-600">Sign Up</Button>
-                        </a>
+                        </Link>
                     </div>
                 </>
                 )}
