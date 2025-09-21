@@ -4,7 +4,7 @@ from .models import Source, Article
 class SourceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Source
-        fields = ['id', 'name', 'base_url', 'feed_url', 'category', 'is_rss'] 
+        fields = ['id', 'name','url', 'category', 'is_rss'] 
         
     def to_representation(self, instance):
         data = super().to_representation(instance)

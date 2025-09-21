@@ -41,8 +41,7 @@ class Source(models.Model):
     """Separate collection for managing sources"""
     id = ObjectIdAutoField(primary_key=True)
     name = models.CharField(max_length=200)
-    base_url = models.URLField()
-    feed_url = models.URLField(blank=True, null=True)
+    url = models.URLField()
     is_rss = models.BooleanField(default=False)
     category = models.CharField(max_length=100, blank=True)
     is_active = models.BooleanField(default=True)
