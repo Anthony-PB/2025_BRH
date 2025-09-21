@@ -1,17 +1,22 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from django.apps import apps
 from django.contrib.auth.password_validation import validate_password
-
+from aggregator.models import Source
 User = get_user_model()
+
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
-        write_only=True, 
-        #min_length=6, 
-        #validators=[validate_password]
+        write_only=True,
+        min_length=6,
+        write_only=True,
+        min_length=6,
+        validators=[validate_password]
     )
     password_confirm = serializers.CharField(write_only=True)
-    
+
+
     class Meta:
         model = User
         fields = [
@@ -20,7 +25,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             'password_confirm',
             'display_name'
         ]
-    
+
+
     def validate(self, attrs):
         print("=== VALIDATE METHOD CALLED ===")
         print(f"Received attrs: {attrs}")
@@ -31,13 +37,11 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         
         print("Validation passed")
         return attrs
-    
+
+
     def create(self, validated_data):
-        print("=== CREATE METHOD CALLED ===")
-        print(f"Validated data: {validated_data}")
         
         validated_data.pop('password_confirm')
-        print(f"After removing password_confirm: {validated_data}")
         
         try:
             user = User.objects.create_user(
@@ -46,8 +50,20 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
                 password=validated_data['password'],
                 display_name=validated_data.get('display_name', ''),
             )
-            print(f"User created successfully: {user.email}")
             return user
         except Exception as e:
-            print(f"Error creating user: {e}")
             raise
+
+class UserFollowSerializer(serializers.ModelSerializer):
+    followed_sources = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'display_name', 'followed_sources']
+        read_only_fields = ['id', 'email']
+
+    def get_followed_sources(self, obj):
+        # Return full source info for each ID the user follows
+        return list(Source.objects.filter(id__in=obj.followed_source_ids).values(
+            'id', 'name', 'base_url', 'feed_url', 'category', 'is_rss'
+        ))

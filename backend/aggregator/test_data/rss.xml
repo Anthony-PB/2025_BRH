@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Test RSS Feed</title>
+    <link>http://www.example.com/rss</link>
+    <description>A static RSS feed for testing purposes.</description>
+    <language>en-us</language>
+    <pubDate>Fri, 20 Sep 2025 21:39:00 EDT</pubDate>
+    <lastBuildDate>Fri, 20 Sep 2025 21:39:00 EDT</lastBuildDate>
+    <generator>Static RSS Generator</generator>
+
+    <item>
+      <title>First Test Item</title>
+      <link>http://www.example.com/item1</link>
+      <description>This is the description for the first test item.</description>
+      <pubDate>Thu, 19 Sep 2025 10:00:00 EDT</pubDate>
+      <guid>http://www.example.com/item1</guid>
+    </item>
+
+    <item>
+      <title>Second Test Item</title>
+      <link>http://www.example.com/item2</link>
+      <description>This is the description for the second test item, with some &lt;b&gt;bold&lt;/b&gt; text.</description>
+      <pubDate>Wed, 18 Sep 2025 14:30:00 EDT</pubDate>
+      <guid>http://www.example.com/item2</guid>
+    </item>
+
+    <item>
+      <title>Third Test Item</title>
+      <link>http://www.example.com/item3</link>
+      <description>Another item to test various elements.</description>
+      <pubDate>Tue, 17 Sep 2025 09:15:00 EDT</pubDate>
+      <guid>http://www.example.com/item3</guid>
+    </item>
+
+  </channel>
+</rss>
