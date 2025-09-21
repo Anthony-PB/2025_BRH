@@ -1,6 +1,7 @@
 import React from "react";
 import Group from "@/components/group";
 
+
 export default function Bookmark() {
     // Mock data to show how it would look
     const mockGroups = [
