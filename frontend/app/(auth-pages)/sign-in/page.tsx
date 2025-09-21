@@ -33,13 +33,13 @@ export default function SignIn() {
         setError(null);
         
         try {
-            console.log('Submitting:', { email, password, displayName, activeTab });
+            console.log('Submitting:', { email, password, displayName, activeTab, confirmPassword });
             
             // Simulate API call
             if (activeTab === 'login') {
                 await loginUser(email, password);
             } else {
-                await createUser(email, password, displayName);
+                await createUser(displayName, email, password, confirmPassword);
             }
             
             // On success, redirect or update UI as needed

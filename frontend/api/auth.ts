@@ -1,6 +1,6 @@
 const API_BASE_URL = 'http://localhost:8000/api';
 
-export const createUser = async (displayName: string, email: string, password: string) => {
+export const createUser = async (displayName: string, email: string, password: string, confirmPassword: string) => {
     try {
         const response = await fetch(`${API_BASE_URL}/users/register/`, {
             method: 'POST',
@@ -10,7 +10,7 @@ export const createUser = async (displayName: string, email: string, password: s
             body: JSON.stringify({
                 email,
                 password,
-                password_confirm: password,
+                password_confirm: confirmPassword,
                 display_name: displayName,
             }),
         });
