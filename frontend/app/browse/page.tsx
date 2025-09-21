@@ -1,3 +1,4 @@
+'use client'; // Step 1: Mark as a client component
 import { CardCell, CardHeader, CardTitle, CardContent, CardImage } from '@/components/ui/cardCell';
 import FilterSideBar from "@/components/filtersidebar";
 import Searchbar from "@/components/searchbar";

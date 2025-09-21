@@ -8,5 +8,5 @@ urlpatterns = [
          views.FollowSourceView.as_view(), name='follow-source'),
     path('unfollow/<str:source_id>/',
          views.UnfollowSourceView.as_view(), name='unfollow-source'),
-     path('login/', views.LoginUserView.as_view(), name='login'),
+    path('login/', views.LoginUserView.as_view(), name='login'),
 ]
