@@ -1,6 +1,6 @@
 "use client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useState } from 'react';
+import { useState, useCallback  } from 'react';
 import { createUser, loginUser } from '@/api/auth';
 import { useRouter} from 'next/navigation';
 import { useAuth } from '@/api/authContext';
@@ -18,10 +18,10 @@ export default function SignIn() {
     const { login } = useAuth();
 
 
-    const validateEmail = (email: string): boolean => {
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const validateEmail = useCallback((email: string): boolean => {
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         return emailRegex.test(email);
-    };
+    }, []);
 
     // Email related stuff
     const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,8 +33,7 @@ export default function SignIn() {
         }
     };
 
-    const handleSubmit = async () => {
-        // Add validation before API call
+    const handleSubmit = useCallback(async () => {
         if (!validateEmail(email)) {
             setEmailError('Please enter a valid email address');
             return;
@@ -65,30 +64,23 @@ export default function SignIn() {
             if (activeTab === 'login') {
                 result = await loginUser(email, password);
             } else {
-            result = await createUser(displayName, email, password, confirmPassword);
+                result = await createUser(displayName, email, password, confirmPassword);
             }
             
             if (result.success) {
                 login(result.token, result.user);
                 router.push("/browse");
             } else {
-                // Handle error object properly
-                let errorMessage = 'Authentication failed';
-                
+                let errorMessage = 'Please check your credentials and try again';
                 if (result.error) {
                     if (typeof result.error === 'string') {
                         errorMessage = result.error;
-                    } else if (result.error.message) {
-                        errorMessage = result.error.message;
-                    } else if (result.error.email) {
-                        errorMessage = result.error.email[0] || result.error.email;
                     } else if (result.error.non_field_errors) {
                         errorMessage = result.error.non_field_errors[0];
-                    } else {
-                        errorMessage = 'Please check your credentials and try again';
+                    } else if (result.error.email) {
+                        errorMessage = result.error.email[0];
                     }
                 }
-                
                 setError(errorMessage);
             }
         } catch (err) {
@@ -97,7 +89,8 @@ export default function SignIn() {
         } finally {
             setLoading(false);
         }
-    };
+    // The dependency array tells React to re-create this function only if these values change.
+    }, [activeTab, email, password, confirmPassword, displayName, router, login, validateEmail]);
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-beigebackground p-4">

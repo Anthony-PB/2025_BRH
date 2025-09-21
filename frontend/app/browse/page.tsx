@@ -1,4 +1,5 @@
 'use client'; // Step 1: Mark as a client component
+import { useState, useEffect } from 'react'; 
 import { CardCell, CardHeader, CardTitle, CardContent, CardImage } from '@/components/ui/cardCell';
 import FilterSideBar from "@/components/filtersidebar";
 import Searchbar from "@/components/searchbar";
@@ -16,8 +17,27 @@ interface ApiResponse {
   results: Article[];
 }
 
-export default async function Browse() {
-  const sourceData: ApiResponse = await getSourceArticles("68cfa96ea07e358109b0dccd");
+export default function Browse() {
+
+  const [sourceData, setSourceData] = useState<ApiResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await getSourceArticles("68cfa96ea07e358109b0dccd");
+        setSourceData(data);
+      } catch (err) {
+        setError("Failed to load articles.");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []); // The empty [] means this runs once when the component loads
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
