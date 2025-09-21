@@ -60,7 +60,7 @@ export default function Browse() {
 
         <div className="flex-1 overflow-y-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 auto-rows-[300px] gap-8 pr-2">
-            {sourceData.results?.map((article, i) => (
+            {sourceData?.results?.map((article, i) => (
               <CardCell key={i} className="max-h-full flex flex-col">
                 <CardImage>
                   <img 
