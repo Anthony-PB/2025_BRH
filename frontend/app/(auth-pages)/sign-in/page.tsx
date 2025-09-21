@@ -1,11 +1,13 @@
 "use client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useState } from 'react';
+import { createUser, loginUser } from '@/api/auth';
 
 export default function SignIn() {
     const [activeTab, setActiveTab] = useState('login');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [displayName, setDisplayName] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -34,7 +36,13 @@ export default function SignIn() {
             console.log('Submitting:', { email, password, displayName, activeTab });
             
             // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            if (activeTab === 'login') {
+                await loginUser(email, password);
+            } else {
+                await createUser(email, password, displayName);
+            }
+            
+            // On success, redirect or update UI as needed
             
             console.log('Success!');
         } catch (err) {
@@ -148,6 +156,21 @@ export default function SignIn() {
                                 type="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
+                                required
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="••••••••"
+                                minLength={6}
+                            />
+                        </div>
+                        <div>
+                            <label htmlFor="confirm-password" className="block text-md font-semibold text-gray-700 mb-1">
+                                Confirm Password
+                            </label>
+                            <input
+                                id="confirm-password"
+                                type="password"
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
                                 required
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                 placeholder="••••••••"

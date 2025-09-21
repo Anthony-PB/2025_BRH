@@ -7,8 +7,8 @@ User = get_user_model()
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
         write_only=True, 
-        min_length=6, 
-        validators=[validate_password]
+        #min_length=6, 
+        #validators=[validate_password]
     )
     password_confirm = serializers.CharField(write_only=True)
     
@@ -16,31 +16,38 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             'email',
-            'first_name',
             'password',
             'password_confirm',
-            'last_name', 
             'display_name'
         ]
     
     def validate(self, attrs):
+        print("=== VALIDATE METHOD CALLED ===")
+        print(f"Received attrs: {attrs}")
+        
         if attrs['password'] != attrs['password_confirm']:
+            print("Password mismatch error")
             raise serializers.ValidationError("Passwords don't match")
-        if attrs.get('email', None) == None:
-            raise serializers.ValidationError("An email is required")
+        
+        print("Validation passed")
         return attrs
     
     def create(self, validated_data):
-        # Remove password_confirm as it's not needed for user creation
-        validated_data.pop('password_confirm')
+        print("=== CREATE METHOD CALLED ===")
+        print(f"Validated data: {validated_data}")
         
-        # Create user with Django's built-in method
-        user = User.objects.create_user(
-            username=validated_data['email'],  # Use email as username
-            email=validated_data['email'],
-            password=validated_data['password'],
-            first_name=validated_data.get('first_name', ''),
-            last_name=validated_data.get('last_name', ''),
-            display_name=validated_data.get('display_name', ''),
-        )
-        return user
+        validated_data.pop('password_confirm')
+        print(f"After removing password_confirm: {validated_data}")
+        
+        try:
+            user = User.objects.create_user(
+                username=validated_data['email'],
+                email=validated_data['email'],
+                password=validated_data['password'],
+                display_name=validated_data.get('display_name', ''),
+            )
+            print(f"User created successfully: {user.email}")
+            return user
+        except Exception as e:
+            print(f"Error creating user: {e}")
+            raise

@@ -13,24 +13,32 @@ class RegisterUserView(generics.CreateAPIView):
     permission_classes = [AllowAny]
     
     def create(self, request, *args, **kwargs):
+        print(f"Request data received: {request.data}")
+        
         serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
+        print("apple")
         
-        # Create authentication token
-        token, created = Token.objects.get_or_create(user=user)
-        
-        return Response({
-            'message': 'User created successfully',
-            'user': {
-                'id': str(user.id),
-                'email': user.email,
-                'display_name': getattr(user, 'display_name', ''),
-                'first_name': user.first_name,
-                'last_name': user.last_name,
-            },
-            'token': token.key  # Add this line
-        }, status=status.HTTP_201_CREATED)
+        if serializer.is_valid():
+            print("banana - validation passed")
+            user = serializer.save()
+            # Create authentication token
+            token, created = Token.objects.get_or_create(user=user)
+            
+            return Response({
+                'message': 'User created successfully',
+                'user': {
+                    'id': str(user.id),
+                    'email': user.email,
+                    'display_name': getattr(user, 'display_name', ''),
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
+                },
+                'token': token.key  # Add this line
+            }, status=status.HTTP_201_CREATED)
+        else:
+            print("cherry - validation failed")
+            print(serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class UserView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
