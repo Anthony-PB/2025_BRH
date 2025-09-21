@@ -9,11 +9,11 @@ export default async function Home() {
   return (
     <div className="flex min-h-screen flex-col">
       <div className="mx-auto flex w-full max-w-lg flex-1 flex-col px-5 lg:max-w-7xl gap-12">
-        <div className="flex justify-center mt-20 text-4xl font-bold">
+        <div className="flex justify-center mt-20 text-6xl font-bold">
           FeedStream
         </div>
-        <div className="flex justify-center text-xl">
-          Description of the website
+        <div className="flex justify-center text-center text-2xl px-12">
+          Stay informed without the chaos. Get personalized content from your chosen sources in one ad-free feed.
         </div> 
         <CardCell> 
           <CardImage>
