@@ -31,6 +31,7 @@ class UserAPISuccessTests(APITestCase):
         self.assertEqual(response.data['user']['email'], 'test@example.com')
         self.assertEqual(response.data['user']['display_name'], 'TestUser')
         self.assertNotIn('password_hash', response.data)
+        self.assertNotIn('password_hash', response.data)
 
         # Verify user exists in database
         self.assertTrue(User.objects.filter(email='test@example.com').exists())
@@ -49,6 +50,7 @@ class UserAPISuccessTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertIn('token', response.data)
         self.assertEqual(response.data['user']['email'], 'minimal@example.com')
+        self.assertNotIn('password_hash', response.data)
         self.assertNotIn('password_hash', response.data)
         # Verify user was created
         user = User.objects.get(email='minimal@example.com')
@@ -72,8 +74,9 @@ class UserAPISuccessTests(APITestCase):
         self.assertIn('token', response.data)
         self.assertNotIn('password_hash', response.data)
 
-        self.assertTrue(User.objects.filter(email='longpass@example.com').exists())
-        
+        self.assertTrue(User.objects.filter(
+            email='longpass@example.com').exists())
+
     def test_create_multiple_users(self):
         """Test creating multiple users successfully"""
         url = reverse("register")
@@ -98,7 +101,7 @@ class UserAPISuccessTests(APITestCase):
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
             self.assertIn('token', response.data)
             self.assertNotIn('password_hash', response.data)
-        
+
         # Verify both users exist
         self.assertEqual(User.objects.count(), 2)
         self.assertTrue(User.objects.filter(
@@ -139,7 +142,6 @@ class UserAPISuccessTests(APITestCase):
         self.assertTrue(len(token1) > 10)  # Reasonable token length
         self.assertTrue(len(token2) > 10)
 
-
     def test_get_profile(self):
         """Test getting authenticated user's profile"""
         data = {
@@ -149,13 +151,13 @@ class UserAPISuccessTests(APITestCase):
         }
 
         response = self.client.post(reverse('register'), data, format='json')
-        self.client.force_authenticate(user=User.objects.get_by_natural_key(response.data['user']['email']))
+        self.client.force_authenticate(
+            user=User.objects.get_by_natural_key(response.data['user']['email']))
         url = reverse("profile-manager")
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['email'], 'minimal@example.com')
         self.assertEqual(response.data['display_name'], '')
-
 
     def test_delete_profile_success(self):
         """Test successful profile deletion"""
@@ -166,16 +168,17 @@ class UserAPISuccessTests(APITestCase):
         }
 
         response = self.client.post(reverse('register'), data, format='json')
-        self.client.force_authenticate(user=User.objects.get_by_natural_key(response.data['user']['email']))
+        self.client.force_authenticate(
+            user=User.objects.get_by_natural_key(response.data['user']['email']))
         user_id = response.data['user']['id']
         url = reverse("profile-manager")
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertEqual(response.data['message'], 'User deleted successfully.')
+        self.assertEqual(response.data['message'],
+                         'User deleted successfully.')
         # Verify user was deleted
         with self.assertRaises(User.DoesNotExist):
             User.objects.get(id=user_id)
-
 
     def test_unauthorized_access(self):
         """Test profile access without authentication"""

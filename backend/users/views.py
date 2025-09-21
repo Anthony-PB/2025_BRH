@@ -4,22 +4,23 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import get_user_model
 from .serializers import UserRegistrationSerializer
+# Make sure this import path matches your project structure
+from aggregator.models import Source
 
 User = get_user_model()
+
 
 class RegisterUserView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserRegistrationSerializer
     permission_classes = [AllowAny]
-    
+
     def create(self, request, *args, **kwargs):
         print(f"Request data received: {request.data}")
         
         serializer = self.get_serializer(data=request.data)
-        print("apple")
         
         if serializer.is_valid():
-            print("banana - validation passed")
             user = serializer.save()
             # Create authentication token
             token, created = Token.objects.get_or_create(user=user)
@@ -36,8 +37,6 @@ class RegisterUserView(generics.CreateAPIView):
                 'token': token.key  # Add this line
             }, status=status.HTTP_201_CREATED)
         else:
-            print("cherry - validation failed")
-            print(serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class UserView(generics.RetrieveUpdateDestroyAPIView):
@@ -64,3 +63,26 @@ class UserView(generics.RetrieveUpdateDestroyAPIView):
             {"message": "User deleted successfully."},
             status=status.HTTP_204_NO_CONTENT
         )
+
+class FollowSourceView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, source_id):
+        user = request.user
+        if not Source.objects.filter(id=source_id).exists():
+            return Response({'error': 'Source not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        user.follow_source(source_id)
+        return Response({'message': 'Source followed successfully'}, status=status.HTTP_200_OK)
+
+
+class UnfollowSourceView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, source_id):
+        user = request.user
+        if not Source.objects.filter(id=source_id).exists():
+            return Response({'error': 'Source not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        user.unfollow_source(source_id)
+        return Response({'message': 'Source unfollowed successfully'}, status=status.HTTP_200_OK)
