@@ -61,3 +61,28 @@ class UserFollowSerializer(serializers.ModelSerializer):
         return list(Source.objects.filter(id__in=obj.followed_source_ids).values(
             'id', 'name', 'base_url', 'feed_url', 'category', 'is_rss'
         ))
+    
+class UserLoginSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(
+        write_only=True,
+        min_length=6,
+        validators=[validate_password]
+    )
+
+    class Meta:
+        model = User
+        fields = [
+            'email',
+            'password'
+        ]
+    
+    def validate(self, attrs):
+        
+        if User.objects.filter(email=attrs['email']).exists():
+            raise serializers.ValidationError("Email is not registered to a user.")
+
+        user = User.objects.get(email=attrs['email'])
+        if not user.check_password(attrs['password']):
+            raise serializers.ValidationError("The password is incorrect.")
+
+        return attrs

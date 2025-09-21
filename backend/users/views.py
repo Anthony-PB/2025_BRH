@@ -1,12 +1,10 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authtoken.models import Token
+from rest_framework.views import APIView
 from django.contrib.auth import get_user_model
 from .serializers import UserRegistrationSerializer
-# Make sure this import path matches your project structure
-from aggregator.models import Source
 # Make sure this import path matches your project structure
 from aggregator.models import Source
 
@@ -90,3 +88,27 @@ class UnfollowSourceView(generics.GenericAPIView):
 
         user.unfollow_source(source_id)
         return Response({'message': 'Source unfollowed successfully'}, status=status.HTTP_200_OK)
+    
+class LoginUserView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            user = User.objects.get(email=request.data['email'])
+            # Create authentication token
+            token, created = Token.objects.get_or_create(user=user)
+            
+            return Response({
+                'message': 'User created successfully',
+                'user': {
+                    'id': str(user.id),
+                    'email': user.email,
+                    'display_name': getattr(user, 'display_name', ''),
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
+                },
+                'token': token.key  # Add this line
+            }, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
