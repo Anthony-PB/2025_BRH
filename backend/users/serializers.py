@@ -10,8 +10,6 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
         write_only=True,
         min_length=6,
-        write_only=True,
-        min_length=6,
         validators=[validate_password]
     )
     password_confirm = serializers.CharField(write_only=True)
@@ -28,14 +26,10 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
 
     def validate(self, attrs):
-        print("=== VALIDATE METHOD CALLED ===")
-        print(f"Received attrs: {attrs}")
         
         if attrs['password'] != attrs['password_confirm']:
-            print("Password mismatch error")
             raise serializers.ValidationError("Passwords don't match")
-        
-        print("Validation passed")
+
         return attrs
 
 

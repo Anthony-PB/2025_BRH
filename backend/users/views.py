@@ -21,7 +21,6 @@ class RegisterUserView(generics.CreateAPIView):
 
 
     def create(self, request, *args, **kwargs):
-        print(f"Request data received: {request.data}")
         
         serializer = self.get_serializer(data=request.data)
         

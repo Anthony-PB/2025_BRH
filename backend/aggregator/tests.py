@@ -69,43 +69,6 @@ class SourceTests(APITestCase):
         self.assertEqual(response.data['count'], 0)
         self.assertEqual(response.data['sources'], [])
 
-
-class UserFollowTests(APITestCase):
-    def setUp(self):
-        self.client = APIClient()
-
-        # Create a test user
-        self.user = User.objects.create_user(
-            username="testuser@example.com",
-            email="testuser@example.com",
-            password="password123"
-        )
-
-        # Create a test source
-        self.source = Source.objects.create(
-            name="Test Source",
-            url="https://example.com",
-            is_active=True
-        )
-
-        # Authenticate client
-        self.client.force_authenticate(user=self.user)
-
-    def test_follow_source(self):
-        url = reverse('follow-source', args=[str(self.source.id)])
-        response = self.client.post(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(str(self.source.id), self.user.followed_source_ids)
-
-    def test_unfollow_source(self):
-        # First follow it
-        self.user.follow_source(self.source.id)
-
-        url = reverse('unfollow-source', args=[str(self.source.id)])
-        response = self.client.post(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertNotIn(str(self.source.id), self.user.followed_source_ids)
-
 class LoadFromSourceTests(APITestCase):
     def test_load_small_rss(self):
         item = Source.objects.create(**{'name': 'ExampleRSS', 

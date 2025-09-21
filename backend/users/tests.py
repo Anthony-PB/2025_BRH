@@ -1,9 +1,9 @@
 from django.test import TestCase
-from rest_framework.test import APITestCase
+from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
 from django.contrib.auth import get_user_model
 from django.urls import reverse
-
+from aggregator.models import Source
 User = get_user_model()
 
 
@@ -154,16 +154,7 @@ class UserAPISuccessTests(APITestCase):
         response = self.client.post(reverse('register'), data, format='json')
         self.client.force_authenticate(
             user=User.objects.get_by_natural_key(response.data['user']['email']))
-        data = {
-            'email': 'minimal@example.com',
-            'password': 'securepass456',
-            'password_confirm': 'securepass456'
-        }
-
-        response = self.client.post(reverse('register'), data, format='json')
-        self.client.force_authenticate(
-            user=User.objects.get_by_natural_key(response.data['user']['email']))
-        url = reverse("profile-manager")
+        url = reverse("user-profile")
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['email'], 'minimal@example.com')
@@ -183,21 +174,9 @@ class UserAPISuccessTests(APITestCase):
         self.client.force_authenticate(
             user=User.objects.get_by_natural_key(response.data['user']['email']))
         user_id = response.data['user']['id']
-        data = {
-            'email': 'minimal@example.com',
-            'password': 'securepass456',
-            'password_confirm': 'securepass456'
-        }
-
-        response = self.client.post(reverse('register'), data, format='json')
-        self.client.force_authenticate(
-            user=User.objects.get_by_natural_key(response.data['user']['email']))
-        user_id = response.data['user']['id']
-        url = reverse("profile-manager")
+        url = reverse("user-profile")
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertEqual(response.data['message'],
-                         'User deleted successfully.')
         self.assertEqual(response.data['message'],
                          'User deleted successfully.')
         # Verify user was deleted
@@ -207,6 +186,43 @@ class UserAPISuccessTests(APITestCase):
     def test_unauthorized_access(self):
         """Test profile access without authentication"""
         self.client.logout()  # Remove authentication
-        url = reverse("profile-manager")
+        url = reverse("user-profile")
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+class UserFollowTests(APITestCase):
+    def setUp(self):
+        self.client = APIClient()
+
+        # Create a test user
+        self.user = User.objects.create_user(
+            username="testuser@example.com",
+            email="testuser@example.com",
+            password="password123"
+        )
+
+        # Create a test source
+        self.source = Source.objects.create(
+            name="Test Source",
+            url="https://example.com",
+            is_active=True
+        )
+
+        # Authenticate client
+        self.client.force_authenticate(user=self.user)
+
+    def test_follow_source(self):
+        url = reverse('follow-source', args=[str(self.source.id)])
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(str(self.source.id), self.user.followed_source_ids)
+
+    def test_unfollow_source(self):
+        # First follow it
+        self.user.follow_source(self.source.id)
+
+        url = reverse('unfollow-source', args=[str(self.source.id)])
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn(str(self.source.id), self.user.followed_source_ids)
