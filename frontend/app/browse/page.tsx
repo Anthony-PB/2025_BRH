@@ -1,8 +1,32 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle} from '@/components/ui/card';
+import { CardCell, CardHeader, CardTitle, CardContent, CardImage } from '@/components/ui/cardCell';
 import FilterSideBar from "@/components/filtersidebar";
-import Searchbar from "@/components/searchbar"
+import Searchbar from "@/components/searchbar";
+import { getSourceArticles } from '@/api/sources';
+
+interface Article {
+  title: string;
+  link: string;
+  date_published: string;
+  aggregated_at: string;
+  image_url: string | null;
+}
+
+interface ApiResponse {
+  results: Article[];
+}
 
 export default async function Browse() {
+  const sourceData: ApiResponse = await getSourceArticles("68cfa96ea07e358109b0dccd");
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
   return (
     <div className="flex min-h-screen flex-col gap-8">
       <div className="flex justify-center text-4xl font-bold mt-16">Browse</div>
@@ -13,12 +37,37 @@ export default async function Browse() {
           <FilterSideBar />
         </div>
 
-        {/* Cards grid */}
         <div className="flex-1 overflow-y-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 auto-rows-[300px] gap-8 pr-2">
-            {Array.from({ length: 18 }).map((_, i) => (
-              <Card key={i} className="max-h-full" />
-            ))}
+            {sourceData.results?.map((article, i) => (
+              <CardCell key={i} className="max-h-full flex flex-col">
+                <CardImage>
+                  <img 
+                    src={article.image_url ?? "/talking.png"} 
+                    alt={article.title} 
+                    className="w-full h-48 object-cover rounded-t-lg"
+                  />
+                </CardImage>
+                <CardHeader className="flex-shrink-0">
+                  <CardTitle className="text-lg font-semibold line-clamp-3 leading-tight">
+                    {article.title}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="flex-1 flex flex-col justify-between">
+                  <div className="text-sm text-gray-600 mb-4">
+                    Published: {formatDate(article.date_published)}
+                  </div>
+                  <a 
+                    href={article.link} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="mt-auto bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors text-center"
+                  >
+                    Read Article
+                  </a>
+                </CardContent>
+              </CardCell>
+            )) || []}
           </div>
         </div>
       </div>

@@ -41,58 +41,41 @@ class LoadFromSource(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, guid, format=None):
-        """
-        Gets the most request.data['count'] recent items from the source found by guid.
-        """
-        count = int(request.query_params.get('count', 10))
+        count = int(request.query_params.get('count', 15))
         source: Source = Source.objects.get(id=guid)
         d: feedparser.FeedParserDict = feedparser.parse(source.url)
         out = []
+
         for entry in d.entries[:count]:
-            out.append({'title': entry.get('title', None),
-                        'link': entry.get('link', None),
-                        'date_published': dateparser.parse(entry.get('published', None)),
-                        'aggregated_at': datetime.now()})
-        out.sort(key=lambda x: x['date_published'], reverse=True)
-        return Response({'results': out}, status=status.HTTP_200_OK)
+            image_url = None
 
+            # Check media tags
+            media = entry.get("media_thumbnail") or entry.get("media_content")
+            if media and "url" in media[0]:
+                image_url = media[0]["url"]
 
-class ParseFeedView(APIView):
-    def post(self, request):
-        feed_url = request.data.get("url")
-        if not feed_url:
-            return Response({"error": "URL is required"}, status=status.HTTP_400_BAD_REQUEST)
-
-        feed = feedparser.parse(feed_url)
-
-        if feed.bozo:
-            return Response({"error": "Invalid or unreadable feed"}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Try to extract image from feed metadata
-        image_url = None
-
-        if "image" in feed.feed and "href" in feed.feed.image:
-            image_url = feed.feed.image["href"]
-        elif "logo" in feed.feed:
-            image_url = feed.feed.logo
-        elif "icon" in feed.feed:
-            image_url = feed.feed.icon
-
-        # Fallback: check for media:thumbnail or media:content inside entries
-        if not image_url and "entries" in feed.entries:
-            for entry in feed.entries:
-                media = entry.get("media_thumbnail") or entry.get(
-                    "media_content")
-                if media and "url" in media[0]:
-                    image_url = media[0]["url"]
-                    break
+            # Check enclosures
+            if not image_url:
                 enclosures = entry.get("enclosures")
                 if enclosures and len(enclosures) > 0 and "href" in enclosures[0]:
                     image_url = enclosures[0]["href"]
-                    break
-        return Response({
-            "title": feed.feed.get("title"),
-            "link": feed.feed.get("link"),
-            "description": feed.feed.get("description"),
-            "image_url": image_url
-        })
+
+            # Fallback to feed-level image/logo/icon
+            if not image_url:
+                if "image" in d.feed and "href" in d.feed.image:
+                    image_url = d.feed.image["href"]
+                elif "logo" in d.feed:
+                    image_url = d.feed.logo
+                elif "icon" in d.feed:
+                    image_url = d.feed.icon
+
+            out.append({
+                'title': entry.get('title', None),
+                'link': entry.get('link', None),
+                'date_published': dateparser.parse(entry.get('published', None)),
+                'aggregated_at': datetime.now(),
+                'image_url': image_url,   # ✅ now included
+            })
+
+        out.sort(key=lambda x: x['date_published'], reverse=True)
+        return Response({'results': out}, status=status.HTTP_200_OK)
