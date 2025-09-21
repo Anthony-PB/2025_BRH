@@ -35,8 +35,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(userData);
       localStorage.setItem("authUser", JSON.stringify(userData));
     }
-    window.location.href = "/browse";
-
 
   };
 
