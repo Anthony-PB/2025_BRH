@@ -9,7 +9,9 @@ services:
       - ./.env
 
   nginx:
-    build: ./frontend
+    build:
+      context: .  # Use the project root as the build context
+      dockerfile: frontend/dockerfile # Tell Docker where to find the Dockerfile
     ports:
       - "80:80"
       - "443:443"
