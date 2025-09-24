@@ -1,6 +1,6 @@
 'use client';
 import Link from "next/link";
-import {Brain} from "lucide-react";
+import Image from "next/image";
 import { Button } from "./ui/button";
 import { useAuth } from "@/api/authContext";
 
@@ -10,7 +10,12 @@ export default function Navbar() {
     return ( 
         <div className="w-full py-6 px-24 flex justify-between border-underline border-b">
             <Link href="/" className="flex gap-4 items-center">
-                <Brain size={36} />
+                <Image
+                    src="/feedstream.png"
+                    alt="The FeedStream logo"
+                    width={40}
+                    height={40}
+                />
                 <p className="text-xl font-bold">FeedStream</p>
             </Link>
             <div className="flex items-center gap-12">
