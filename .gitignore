@@ -16,3 +16,6 @@ __pycache__/
 .Python
 
 next-env.d.ts
+
+# Certbot keys for 
+data/certbot/
