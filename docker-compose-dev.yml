@@ -27,7 +27,7 @@ services:
   nginx:
     build:
       context: .
-      dockerfile: frontend/dockerfile
+      dockerfile: frontend/Dockerfile
       args:
         NEXT_PUBLIC_API_URL: /api
     ports:

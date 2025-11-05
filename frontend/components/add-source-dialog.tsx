@@ -16,16 +16,27 @@ import { Label } from "@/components/ui/label";
 import { createSource } from "@/api/sources";
 
 interface AddSourceDialogProps {
-  children: React.ReactNode;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   onSourceAdded: () => void;
 }
 
-export function AddSourceDialog({ children, onSourceAdded }: AddSourceDialogProps) {
-  const [open, setOpen] = useState(false);
+export function AddSourceDialog({ open, onOpenChange, onSourceAdded }: AddSourceDialogProps) {
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
   const [category, setCategory] = useState("");
   const [error, setError] = useState<string | null>(null);
+
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      // Reset form when closing
+      setName("");
+      setUrl("");
+      setCategory("");
+      setError(null);
+    }
+    onOpenChange(newOpen);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,11 +58,7 @@ export function AddSourceDialog({ children, onSourceAdded }: AddSourceDialogProp
 
     if (result.id) {
       onSourceAdded();
-      setOpen(false);
-      // Reset form
-      setName("");
-      setUrl("");
-      setCategory("");
+      handleOpenChange(false);
     } else {
       setError("Failed to create source. Please check the details.");
       console.error("Failed to create source:", result);
@@ -59,8 +66,7 @@ export function AddSourceDialog({ children, onSourceAdded }: AddSourceDialogProp
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
