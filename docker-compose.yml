@@ -26,6 +26,7 @@ services:
         condition: service_healthy
   nginx:
     build:
+      context: .
       args:
         NEXT_PUBLIC_API_URL: https://feedstream.duckdns.org/api
     ports:
