@@ -6,7 +6,7 @@ export const getSources = async () => {
 };
 
 export const getSourceArticles = async (sourceId: string) => {
-    const response = await fetch(`${API_BASE_URL}/sources/get/${sourceId}`);
+    const response = await fetch(`${API_BASE_URL}/sources/${sourceId}/load/`);
     return response.json();
 };
 

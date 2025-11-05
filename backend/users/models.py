@@ -1,35 +1,22 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django_mongodb_backend.fields import ObjectIdAutoField
-from django.apps import apps
 
 class User(AbstractUser):
-    id = ObjectIdAutoField(primary_key=True)
     email = models.EmailField(unique=True)
     display_name = models.CharField(max_length=100, blank=True)
-    followed_source_ids = models.JSONField(default=list, blank=True)
+    last_login = models.DateTimeField(blank=True, null=True)
+    is_superuser = models.BooleanField(default=False)
+    followed_sources = models.ManyToManyField(
+        'aggregator.Source',
+        related_name='followers',
+        blank=True
+    )
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS = ['username']
 
     class Meta:
         db_table = 'users'
 
     def __str__(self):
         return self.email
-
-    def follow_source(self, source_id):
-        Source = apps.get_model('aggregator', 'Source')
-        if not Source.objects.filter(id=source_id).exists():
-            raise ValueError("Source does not exist")
-        if source_id not in self.followed_source_ids:
-            self.followed_source_ids.append(str(source_id))
-            self.save()
-
-    def unfollow_source(self, source_id):
-        Source = apps.get_model('aggregator', 'Source')
-        if not Source.objects.filter(id=source_id).exists():
-            raise ValueError("Source does not exist")
-        if source_id in self.followed_source_ids:
-            self.followed_source_ids.remove(str(source_id))
-            self.save()

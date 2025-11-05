@@ -41,9 +41,9 @@ else:
 # Application definition
 
 INSTALLED_APPS = [
-    'backend.apps.MongoAdminConfig',
-    'backend.apps.MongoAuthConfig',
-    'backend.apps.MongoContentTypesConfig',
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
@@ -95,15 +95,16 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django_mongodb_backend',
-        'HOST': os.getenv('MONGODB_CONNECTION_STRING', ''),
-        'NAME': 'content_aggregator',  # Better name for your project
-    },
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('POSTGRES_DB', 'mydatabase'),
+        'USER': os.getenv('POSTGRES_USER', 'user'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'password'),
+        'HOST': os.getenv('POSTGRES_HOST', 'db'),
+        'PORT': os.getenv('POSTGRES_PORT', '5432'),
+    }
 }
 
-# Database routers
-# https://docs.djangoproject.com/en/dev/ref/settings/#database-routers
-DATABASE_ROUTERS = ["django_mongodb_backend.routers.MongoRouter"]
+
 
 # Custom User Model
 AUTH_USER_MODEL = 'users.User'
@@ -178,13 +179,9 @@ STATIC_URL = 'static/'
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django_mongodb_backend.fields.ObjectIdAutoField'
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-MIGRATION_MODULES = {
-    'admin': 'mongo_migrations.admin',
-    'auth': 'mongo_migrations.auth',
-    'contenttypes': 'mongo_migrations.contenttypes',
-}
+
 
 # Logging configuration for development
 LOGGING = {
@@ -199,10 +196,6 @@ LOGGING = {
         'django': {
             'handlers': ['console'],
             'level': 'INFO',
-        },
-        'django_mongodb_backend': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
         },
     },
 }

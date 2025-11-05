@@ -1,6 +1,10 @@
 # Stage 1: Build the React application
 FROM node:20-alpine AS build
 
+# Add a build argument for the API URL and set it as an environment variable
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
 WORKDIR /app
 COPY frontend/package*.json ./
 RUN npm install
