@@ -27,6 +27,7 @@ services:
   nginx:
     build:
       context: .
+      dockerfile: frontend/Dockerfile
       args:
         NEXT_PUBLIC_API_URL: https://feedstream.duckdns.org/api
     ports:
