@@ -9,7 +9,8 @@ class User(AbstractUser):
     followed_sources = models.ManyToManyField(
         'aggregator.Source',
         related_name='followers',
-        blank=True
+        blank=True,
+        default=list
     )
 
     USERNAME_FIELD = 'email'
