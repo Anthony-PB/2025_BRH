@@ -1,6 +1,6 @@
 "use client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useState, useCallback  } from 'react';
+import { useState, useCallback, useEffect  } from 'react';
 import { createUser, loginUser } from '@/api/auth';
 import { useRouter} from 'next/navigation';
 import { useAuth } from '@/api/authContext';
@@ -15,7 +15,13 @@ export default function SignIn() {
     const [error, setError] = useState<string | null>(null);
     const [emailError, setEmailError] = useState<string | null>(null);
     const router = useRouter();
-    const { login } = useAuth();
+    const { login, token, loading: authLoading } = useAuth();
+
+    useEffect(() => {
+        if (!authLoading && token) {
+            router.push('/browse');
+        }
+    }, [token, authLoading, router]);
 
 
     const validateEmail = useCallback((email: string): boolean => {
@@ -91,6 +97,14 @@ export default function SignIn() {
         }
     // The dependency array tells React to re-create this function only if these values change.
     }, [activeTab, email, password, confirmPassword, displayName, router, login, validateEmail]);
+
+    if (authLoading || token) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-beigebackground p-4">
+                <div>Loading...</div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-beigebackground p-4">
