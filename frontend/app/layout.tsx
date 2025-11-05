@@ -6,8 +6,8 @@ import { AuthProvider } from "@/api/authContext";
 
 
 export const metadata: Metadata = {
-  title: "Next.js + MongoDB",
-  description: "Use MongoDB with Next.js",
+  title: "Feedstream",
+  description: "News without the clutter.",
 };
 
 export default function RootLayout({

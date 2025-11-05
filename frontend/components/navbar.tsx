@@ -49,14 +49,14 @@ export default function Navbar() {
                         />
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="relative h-15 w-15 rounded-full">
-                                    <CircleUserRound size="20" strokeWidth="2"/>
+                                <Button variant="ghost" className="relative h-10 w-10 rounded-full p-0 [&_svg]:size-8">
+                                    <CircleUserRound strokeWidth="1.5"/>
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="w-56" align="end" forceMount>
-                                <DropdownMenuLabel>
+                                <DropdownMenuLabel className="px-2 py-1.5">
                                     {user && (
-                                        <p className="px-1 text-black font-bold text-l">Hello, {user.display_name}!</p>
+                                        <p className="text-black font-bold">Hello, {user.display_name}!</p>
                                     )}
                                 </DropdownMenuLabel>
                                 <DropdownMenuSeparator />
