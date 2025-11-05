@@ -1,8 +1,20 @@
+'use client';
 import React from "react";
 import Group from "@/components/group";
-
+import { useAuth } from "@/api/authContext";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function Bookmark() {
+    const { token, loading: authLoading } = useAuth();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (!authLoading && !token) {
+            router.push('/');
+        }
+    }, [token, authLoading, router]);
+
     // Mock data to show how it would look
     const mockGroups = [
         {
@@ -30,6 +42,14 @@ export default function Bookmark() {
             sourcesIn: ["Dribbble", "Behance", "Awwwards", "UX Planet"]
         }
     ];
+
+    if (authLoading || !token) {
+        return (
+            <div className="flex min-h-screen flex-col gap-8">
+                <div className="flex justify-center text-4xl font-bold mt-16">Loading...</div>
+            </div>
+        );
+    }
 
     return (
         <div className="w-full py-6 px-24 flex flex-col gap-8">
