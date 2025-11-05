@@ -4,6 +4,8 @@ import { CardCell, CardHeader, CardTitle, CardContent, CardImage } from '@/compo
 import FilterSideBar from "@/components/filtersidebar";
 import Searchbar from "@/components/searchbar";
 import { getSourceArticles } from '@/api/sources';
+import { useAuth } from '@/api/authContext';
+import { useRouter } from 'next/navigation';
 
 interface Article {
   title: string;
@@ -22,6 +24,14 @@ export default function Browse() {
   const [sourceData, setSourceData] = useState<ApiResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { token, loading: authLoading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!authLoading && !token) {
+      router.push('/');
+    }
+  }, [token, authLoading, router]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,8 +46,10 @@ export default function Browse() {
       }
     };
 
-    fetchData();
-  }, []); // The empty [] means this runs once when the component loads
+    if (token) {
+      fetchData();
+    }
+  }, [token]); // The empty [] means this runs once when the component loads
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -47,6 +59,14 @@ export default function Browse() {
       minute: '2-digit'
     });
   };
+
+  if (authLoading || !token) {
+    return (
+        <div className="flex min-h-screen flex-col gap-8">
+            <div className="flex justify-center text-4xl font-bold mt-16">Loading...</div>
+        </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-col gap-8">
