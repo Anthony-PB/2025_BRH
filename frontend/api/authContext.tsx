@@ -5,6 +5,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 interface AuthContextType {
   user: any;
   token: string | null;
+  loading: boolean;
   login: (token: string, userData?: any) => void;
   logout: () => void;
 }
@@ -30,7 +31,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (error) {
         console.error("Failed to initialize auth from storage", error);
     } finally {
-        // 2. Set loading to false after checking storage
         setLoading(false);
     }
   }, []);
@@ -54,13 +54,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     window.location.href = "/";
   };
 
-    // 3. Don't render the app until the check is complete
-  if (loading) {
-    return null; // Or you could return a full-page loading spinner
-  }
-  
   return (
-    <AuthContext.Provider value={{ user, token, login, logout }}>
+    <AuthContext.Provider value={{ user, token, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
